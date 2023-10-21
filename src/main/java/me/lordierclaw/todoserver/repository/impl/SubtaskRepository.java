@@ -1,29 +1,25 @@
 package me.lordierclaw.todoserver.repository.impl;
 
-import me.lordierclaw.todoserver.database.instance.AbstractDatabaseInstance;
 import me.lordierclaw.todoserver.model.base.Subtask;
+import me.lordierclaw.todoserver.repository.AbstractRepository;
 import me.lordierclaw.todoserver.repository.ISubtaskRepository;
 
-import javax.inject.Inject;
 import java.util.List;
 
-public class SubtaskRepository implements ISubtaskRepository {
-    @Inject
-    private AbstractDatabaseInstance databaseInstance;
-
+public class SubtaskRepository extends AbstractRepository implements ISubtaskRepository {
     @Override
     public int insertSubtask(Subtask subtask) {
         return databaseInstance.getSubtaskDao().insertSubtask(subtask);
     }
 
     @Override
-    public void updateSubtask(Subtask subtask) {
-        databaseInstance.getSubtaskDao().updateSubtask(subtask);
+    public boolean updateSubtask(Subtask subtask) {
+        return databaseInstance.getSubtaskDao().updateSubtask(subtask);
     }
 
     @Override
-    public void deleteSubtask(Subtask subtask) {
-        databaseInstance.getSubtaskDao().deleteSubtask(subtask);
+    public boolean deleteSubtask(Subtask subtask) {
+        return databaseInstance.getSubtaskDao().deleteSubtask(subtask);
     }
 
     @Override

@@ -1,6 +1,6 @@
-package me.lordierclaw.todoserver.database.mapper.impl;
+package me.lordierclaw.todoserver.database.utils.mapper.impl;
 
-import me.lordierclaw.todoserver.database.mapper.IRowMapper;
+import me.lordierclaw.todoserver.database.utils.mapper.IRowMapper;
 import me.lordierclaw.todoserver.model.client.CategoryCount;
 
 import java.sql.ResultSet;

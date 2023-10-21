@@ -2,13 +2,13 @@ package me.lordierclaw.todoserver.repository.impl;
 
 import me.lordierclaw.todoserver.database.instance.AbstractDatabaseInstance;
 import me.lordierclaw.todoserver.model.base.Category;
+import me.lordierclaw.todoserver.repository.AbstractRepository;
 import me.lordierclaw.todoserver.repository.ICategoryRepository;
 
 import javax.inject.Inject;
 import java.util.List;
 
-public class CategoryRepository implements ICategoryRepository {
-
+public class CategoryRepository extends AbstractRepository implements ICategoryRepository {
     @Inject
     private AbstractDatabaseInstance databaseInstance;
 
@@ -18,18 +18,18 @@ public class CategoryRepository implements ICategoryRepository {
     }
 
     @Override
-    public void updateCategory(Category category) {
-        databaseInstance.getCategoryDao().updateCategory(category);
+    public boolean updateCategory(Category category) {
+        return databaseInstance.getCategoryDao().updateCategory(category);
     }
 
     @Override
-    public void deleteCategory(Category category) {
-        databaseInstance.getCategoryDao().deleteCategory(category);
+    public boolean deleteCategory(Category category) {
+        return databaseInstance.getCategoryDao().deleteCategory(category);
     }
 
     @Override
-    public Category getCategory(int id) {
-        return databaseInstance.getCategoryDao().getCategory(id);
+    public Category getCategory(int userId, int id) {
+        return databaseInstance.getCategoryDao().getCategory(userId, id);
     }
 
     @Override

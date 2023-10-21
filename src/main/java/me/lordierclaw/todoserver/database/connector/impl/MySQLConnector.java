@@ -3,9 +3,6 @@ package me.lordierclaw.todoserver.database.connector.impl;
 import io.github.cdimascio.dotenv.Dotenv;
 import me.lordierclaw.todoserver.database.connector.IDatabaseConnector;
 
-import javax.servlet.Servlet;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServlet;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -15,7 +12,7 @@ public class MySQLConnector implements IDatabaseConnector {
     private final String user;
     private final String password;
 
-    MySQLConnector() {
+    public MySQLConnector() {
         String secretDir = System.getenv("todo.secret");
         Dotenv dotenv = Dotenv.configure().directory(secretDir).filename("my_sql_env").load();
         this.url = dotenv.get("MYSQL_URL");

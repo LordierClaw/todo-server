@@ -1,4 +1,4 @@
-package me.lordierclaw.todoserver.database.mapper;
+package me.lordierclaw.todoserver.database.utils.mapper;
 
 import java.sql.ResultSet;
 

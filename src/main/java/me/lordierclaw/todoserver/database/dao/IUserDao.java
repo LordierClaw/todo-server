@@ -4,7 +4,7 @@ import me.lordierclaw.todoserver.model.base.User;
 
 public interface IUserDao {
     User findUserByEmailPassword(String email, String password);
-    int insertUser(User user);
-    void updateUser(User user);
-    void deleteUser(User user);
+    Integer insertUser(User user);
+    Boolean updateUser(User user);
+    Boolean deleteUser(User user);
 }

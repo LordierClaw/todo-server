@@ -2,34 +2,39 @@ package me.lordierclaw.todoserver.database.dao.impl;
 
 import me.lordierclaw.todoserver.database.dao.AbstractDao;
 import me.lordierclaw.todoserver.database.dao.ICategoryDao;
-import me.lordierclaw.todoserver.database.mapper.impl.CategoryMapper;
+import me.lordierclaw.todoserver.database.utils.mapper.impl.CategoryMapper;
+import me.lordierclaw.todoserver.database.utils.query.IQueryExecutorBuilder;
 import me.lordierclaw.todoserver.model.base.Category;
 
 import java.util.List;
 
 public class CategoryDao extends AbstractDao implements ICategoryDao {
+    public CategoryDao(IQueryExecutorBuilder executorBuilder) {
+        super(executorBuilder);
+    }
+
     @Override
-    public int insertCategory(Category category) {
+    public Integer insertCategory(Category category) {
         String sql = "INSERT INTO category (name, user_id) VALUES (?, ?)";
-        return insert(sql, category.getName(), category.getUserId());
+        return prepareExecutor().insert(sql, category.getName(), category.getUserId());
     }
 
     @Override
-    public void updateCategory(Category category) {
+    public Boolean updateCategory(Category category) {
         String sql = "UPDATE category SET name = ? WHERE id = ?";
-        update(sql, category.getName(), category.getId());
+        return prepareExecutor().update(sql, category.getName(), category.getId());
     }
 
     @Override
-    public void deleteCategory(Category category) {
+    public Boolean deleteCategory(Category category) {
         String sql = "DELETE FROM category WHERE id = ?";
-        delete(sql, category.getId());
+        return prepareExecutor().delete(sql, category.getId());
     }
 
     @Override
-    public Category getCategory(int id) {
-        String sql = "SELECT * FROM category WHERE id = ?";
-        List<Category> result = query(sql, new CategoryMapper(), id);
+    public Category getCategory(int userId, int id) {
+        String sql = "SELECT * FROM category WHERE id = ? AND user_id = ?";
+        List<Category> result = prepareExecutor().query(sql, new CategoryMapper(), id, userId);
         if (result == null || result.isEmpty()) return null;
         return result.get(0);
     }
@@ -37,6 +42,6 @@ public class CategoryDao extends AbstractDao implements ICategoryDao {
     @Override
     public List<Category> getAllCategoriesOfUser(int userId) {
         String sql = "SELECT * FROM category WHERE user_id = ?";
-        return query(sql, new CategoryMapper(), userId);
+        return prepareExecutor().query(sql, new CategoryMapper(), userId);
     }
 }

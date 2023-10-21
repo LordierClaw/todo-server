@@ -1,9 +1,10 @@
-package me.lordierclaw.todoserver.controller;
+package me.lordierclaw.todoserver.controller.api;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import me.lordierclaw.todoserver.service.IUserService;
 import me.lordierclaw.todoserver.service.exception.LoginException;
+import me.lordierclaw.todoserver.utils.Status;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -27,15 +28,15 @@ public class LoginAPI extends HttpServlet {
         String email = body.get("email").getAsString();
         String password = body.get("password").getAsString();
         if (email == null || password == null) {
-            resp.setStatus(400); // Bad Request
+            resp.setStatus(Status.BAD_REQUEST);
             return;
         }
         try {
             String token = userService.logIn(email, password);
-            resp.setStatus(202); // Accepted
+            resp.setStatus(Status.ACCEPTED);
             resp.getOutputStream().print(token);
         } catch (LoginException e) {
-            resp.setStatus(406); // Not Accepted
+            resp.setStatus(Status.NOT_ACCEPTED);
         }
     }
 }

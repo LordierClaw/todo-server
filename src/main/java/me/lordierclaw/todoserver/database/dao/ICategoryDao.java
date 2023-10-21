@@ -5,9 +5,9 @@ import me.lordierclaw.todoserver.model.base.Category;
 import java.util.List;
 
 public interface ICategoryDao {
-    int insertCategory(Category category);
-    void updateCategory(Category category);
-    void deleteCategory(Category category);
-    Category getCategory(int id);
+    Integer insertCategory(Category category);
+    Boolean updateCategory(Category category);
+    Boolean deleteCategory(Category category);
+    Category getCategory(int userId, int id);
     List<Category> getAllCategoriesOfUser(int userId);
 }

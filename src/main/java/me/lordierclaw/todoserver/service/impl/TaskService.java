@@ -34,26 +34,20 @@ public class TaskService extends AuthorizedService implements ITaskService {
     }
 
     @Override
-    public void updateTask(String token, TaskClient taskClient) throws UnauthorizedException {
+    public boolean updateTask(String token, TaskClient taskClient) throws UnauthorizedException {
         Task task = taskClient.toTask(authorizeUser(token));
-        taskRepository.updateTask(task);
+        return taskRepository.updateTask(task);
     }
 
     @Override
-    public void deleteTask(String token, TaskClient taskClient) throws UnauthorizedException {
-        deleteTask(token, taskClient.getId());
-    }
-
-    @Override
-    public void deleteTask(String token, int id) throws UnauthorizedException {
-        authorizeUser(token);
-        taskRepository.deleteTask(id);
+    public boolean deleteTask(String token, TaskClient taskClient) throws UnauthorizedException {
+        Task task = taskClient.toTask(authorizeUser(token));
+        return taskRepository.deleteTask(task);
     }
 
     @Override
     public TaskClient getTask(String token, int id) throws UnauthorizedException {
-        authorizeUser(token);
-        return TaskClient.fromTask(taskRepository.getTask(id));
+        return TaskClient.fromTask(taskRepository.getTask(authorizeUser(token), id));
     }
 
     @Override
@@ -62,9 +56,8 @@ public class TaskService extends AuthorizedService implements ITaskService {
     }
 
     @Override
-    public List<TaskClient> getAllTaskInCategory(String token, int categoryId) {
-        // TODO: Move this to CategoryService, Repos, Dao
-        return null;
+    public List<TaskClient> getAllTaskInCategory(String token, int categoryId) throws UnauthorizedException {
+        return mapTaskClientList(taskRepository.getAllTaskInCategory(authorizeUser(token), categoryId));
     }
 
     @Override
@@ -74,8 +67,10 @@ public class TaskService extends AuthorizedService implements ITaskService {
     }
 
     @Override
-    public List<TaskClient> getAllTaskOfUserInRangeTime(String token, Timestamp startTime, Timestamp endTime) throws UnauthorizedException {
+    public List<TaskClient> getAllTaskOfUserInRangeTime(String token, long startTimestamp, long endTimestamp) throws UnauthorizedException {
         int userId = authorizeUser(token);
+        Timestamp startTime = new Timestamp(startTimestamp);
+        Timestamp endTime = new Timestamp(endTimestamp);
         return mapTaskClientList(taskRepository.getAllTaskOfUserInRangeTime(userId, startTime, endTime));
     }
 
@@ -86,8 +81,7 @@ public class TaskService extends AuthorizedService implements ITaskService {
     }
 
     @Override
-    public List<CategoryCount> getCategoryCountsOfUser(String token) {
-        // TODO: Move this to CategoryService, Repos, Dao
-        return null;
+    public List<CategoryCount> getCategoryCountsOfUser(String token) throws UnauthorizedException {
+        return taskRepository.getCategoryCountsOfUser(authorizeUser(token));
     }
 }

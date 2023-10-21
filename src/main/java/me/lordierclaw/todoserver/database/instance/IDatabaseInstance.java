@@ -1,6 +1,7 @@
 package me.lordierclaw.todoserver.database.instance;
 
 import me.lordierclaw.todoserver.database.dao.*;
+import me.lordierclaw.todoserver.database.utils.trigger.ITriggerTracker;
 
 public interface IDatabaseInstance {
     ITaskDao getTaskDao();
@@ -8,4 +9,5 @@ public interface IDatabaseInstance {
     ICategoryDao getCategoryDao();
     IAttachmentDao getAttachmentDao();
     IUserDao getUserDao();
+    ITriggerTracker getTriggerTracker();
 }

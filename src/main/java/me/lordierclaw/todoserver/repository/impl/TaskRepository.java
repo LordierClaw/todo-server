@@ -1,41 +1,38 @@
 package me.lordierclaw.todoserver.repository.impl;
 
-import me.lordierclaw.todoserver.database.instance.AbstractDatabaseInstance;
-import me.lordierclaw.todoserver.model.client.CategoryCount;
 import me.lordierclaw.todoserver.model.base.Task;
+import me.lordierclaw.todoserver.model.client.CategoryCount;
+import me.lordierclaw.todoserver.repository.AbstractRepository;
 import me.lordierclaw.todoserver.repository.ITaskRepository;
 
-import javax.inject.Inject;
 import java.sql.Timestamp;
 import java.util.List;
 
-public class TaskRepository implements ITaskRepository {
-    @Inject
-    private AbstractDatabaseInstance databaseInstance;
-
+public class TaskRepository extends AbstractRepository implements ITaskRepository {
     @Override
     public int insertTask(Task task) {
-        return databaseInstance.getTaskDao().insertTask(task);
+        int result = databaseInstance.getTaskDao().insertTask(task);
+        invalidate();
+        return result;
     }
 
     @Override
-    public void updateTask(Task task) {
-        databaseInstance.getTaskDao().updateTask(task);
+    public boolean updateTask(Task task) {
+        boolean result = databaseInstance.getTaskDao().updateTask(task);
+        if (result) invalidate();
+        return result;
     }
 
     @Override
-    public void deleteTask(Task task) {
-        databaseInstance.getTaskDao().deleteTask(task);
+    public boolean deleteTask(Task task) {
+        boolean result = databaseInstance.getTaskDao().deleteTask(task);
+        if (result) invalidate();
+        return result;
     }
 
     @Override
-    public void deleteTask(int id) {
-        databaseInstance.getTaskDao().deleteTask(id);
-    }
-
-    @Override
-    public Task getTask(int id) {
-        return databaseInstance.getTaskDao().getTask(id);
+    public Task getTask(int userId, int id) {
+        return databaseInstance.getTaskDao().getTask(userId, id);
     }
 
     @Override
@@ -44,8 +41,8 @@ public class TaskRepository implements ITaskRepository {
     }
 
     @Override
-    public List<Task> getAllTaskInCategory(int categoryId) {
-        return databaseInstance.getTaskDao().getAllTaskInCategory(categoryId);
+    public List<Task> getAllTaskInCategory(int userId, int categoryId) {
+        return databaseInstance.getTaskDao().getAllTaskInCategory(userId, categoryId);
     }
 
     @Override
