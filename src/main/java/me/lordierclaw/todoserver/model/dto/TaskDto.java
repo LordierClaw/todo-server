@@ -1,11 +1,11 @@
-package me.lordierclaw.todoserver.model.client;
+package me.lordierclaw.todoserver.model.dto;
 
 import me.lordierclaw.todoserver.model.base.Identifiable;
 import me.lordierclaw.todoserver.model.base.Task;
 
 import java.sql.Timestamp;
 
-public class TaskClient extends Identifiable {
+public class TaskDto extends Identifiable {
     private boolean status;
     private String name;
     private Integer categoryId;
@@ -14,16 +14,16 @@ public class TaskClient extends Identifiable {
     private String repeatType;
     private String notes;
 
-    public static TaskClient fromTask(Task task) {
-        TaskClient taskClient = new TaskClient();
-        taskClient.setId(task.getId());
-        taskClient.setStatus(task.getStatus());
-        taskClient.setName(task.getName());
-        taskClient.setCategoryId(task.getCategoryId());
-        taskClient.setReminderAt(task.getReminderAt());
-        taskClient.setRepeatType(task.getRepeatType());
-        taskClient.setNotes(task.getNotes());
-        return taskClient;
+    public static TaskDto fromTask(Task task) {
+        TaskDto taskDto = new TaskDto();
+        taskDto.setId(task.getId());
+        taskDto.setStatus(task.getStatus());
+        taskDto.setName(task.getName());
+        taskDto.setCategoryId(task.getCategoryId());
+        taskDto.setReminderAt(task.getReminderAt());
+        taskDto.setRepeatType(task.getRepeatType());
+        taskDto.setNotes(task.getNotes());
+        return taskDto;
     }
 
     public Task toTask(int userId) {

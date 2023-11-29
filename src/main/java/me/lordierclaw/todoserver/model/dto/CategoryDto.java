@@ -1,16 +1,16 @@
-package me.lordierclaw.todoserver.model.client;
+package me.lordierclaw.todoserver.model.dto;
 
 import me.lordierclaw.todoserver.model.base.Category;
 import me.lordierclaw.todoserver.model.base.Identifiable;
 
-public class CategoryClient extends Identifiable {
+public class CategoryDto extends Identifiable {
     private String name;
 
-    public static CategoryClient fromCategory(Category category) {
-        CategoryClient categoryClient = new CategoryClient();
-        categoryClient.setId(category.getId());
-        categoryClient.setName(category.getName());
-        return categoryClient;
+    public static CategoryDto fromCategory(Category category) {
+        CategoryDto categoryDto = new CategoryDto();
+        categoryDto.setId(category.getId());
+        categoryDto.setName(category.getName());
+        return categoryDto;
     }
 
     public Category toCategory(int userId) {

@@ -1,6 +1,6 @@
-package me.lordierclaw.todoserver.model.client;
+package me.lordierclaw.todoserver.model.dto;
 
-public class CategoryCount {
+public class CategoryCountDto {
     private String categoryName;
     private int taskCount;
 

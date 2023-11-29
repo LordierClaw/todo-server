@@ -14,9 +14,9 @@ public class UserDao extends AbstractDao implements IUserDao {
     }
 
     @Override
-    public User findUserByEmailPassword(String email, String password) {
-        String sql = "SELECT * FROM user WHERE email = ? AND password = ?";
-        List<User> result = prepareExecutor().query(sql, new UserMapper(), email, password);
+    public User findUserByEmail(String email) {
+        String sql = "SELECT * FROM user WHERE email = ?";
+        List<User> result = prepareExecutor().query(sql, new UserMapper(), email);
         if (result == null || result.isEmpty()) return null;
         return result.get(0);
     }
@@ -25,7 +25,7 @@ public class UserDao extends AbstractDao implements IUserDao {
     public Integer insertUser(User user) {
         String sql = "INSERT INTO user (email, name, password) " +
                 "VALUES (?, ?, ?)";
-        return prepareExecutor().insert(sql, user.getEmail(), user.getName(), user.getPassword());
+        return prepareExecutor().insert(sql, "id", user.getEmail(), user.getName(), user.getPassword());
     }
 
     @Override

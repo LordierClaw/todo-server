@@ -1,8 +1,7 @@
 package me.lordierclaw.todoserver.controller.api;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import me.lordierclaw.todoserver.model.client.TaskClient;
+import me.lordierclaw.todoserver.model.dto.TaskDto;
 import me.lordierclaw.todoserver.service.ITaskService;
 import me.lordierclaw.todoserver.service.exception.UnauthorizedException;
 import me.lordierclaw.todoserver.utils.Helper;
@@ -18,7 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@WebServlet(urlPatterns = {"/api/task"})
+@WebServlet(urlPatterns = {"/task/*"})
 public class TaskAPI extends HttpServlet {
     @Inject
     private ITaskService taskService;
@@ -29,8 +28,7 @@ public class TaskAPI extends HttpServlet {
         try {
             String authorization = Helper.requireNotNull(req.getHeader("Authorization"));
             Gson gson = new Gson();
-            JsonObject request = gson.fromJson(req.getReader(), JsonObject.class);
-            List<?> contents = Helper.requireNotNull(handleGetContent(authorization, request));
+            List<?> contents = Helper.requireNotNull(handleGetContent(authorization, req));
             String result = gson.toJson(contents);
             resp.setStatus(Status.OK);
             resp.getOutputStream().print(result);
@@ -44,35 +42,62 @@ public class TaskAPI extends HttpServlet {
     }
 
     // This function might throw NullPointerException if it can't find the correct key, request
-    private List<?> handleGetContent(String authorization, JsonObject request) throws UnauthorizedException, NullPointerException {
-        String type = request.get("type").getAsString();
-        JsonObject param = request.get("params").getAsJsonObject();
-        switch (type) {
-            case "single":
-                int taskId = param.get("id").getAsInt();
-                List<TaskClient> singleTask = new ArrayList<>();
-                TaskClient taskClient = taskService.getTask(authorization, taskId);
-                singleTask.add(taskClient);
-                return singleTask;
-            case "all":
+    private List<?> handleGetContent(String authorization, HttpServletRequest req) throws UnauthorizedException, NullPointerException {
+        String pathInfo = req.getPathInfo();
+        if (pathInfo == null || pathInfo.equals("/")) {
+            if (!req.getParameterNames().hasMoreElements()) {
                 return taskService.getAllTaskOfUser(authorization);
-            case "in-category":
-                int categoryId = param.get("category_id").getAsInt();
-                return taskService.getAllTaskInCategory(authorization, categoryId);
-            case "contains-title":
-                String keyword = param.get("keyword").getAsString();
-                return taskService.getAllTaskOfUserContainsTitle(authorization, keyword);
-            case "in-range-time":
-                long startTime = param.get("start_time").getAsLong();
-                long endTime = param.get("end_time").getAsLong();
-                return taskService.getAllTaskOfUserInRangeTime(authorization, startTime, endTime);
-            case "task-count-by-status":
-                boolean status = param.get("status").getAsBoolean();
-                return taskService.getTaskCountByStatusOfUser(authorization, status);
-            case "category-count":
+            }
+
+            String categoryId = req.getParameter("category");
+            if (categoryId != null) {
+                return taskService.getAllTaskInCategory(authorization, Integer.parseInt(categoryId));
+            }
+
+            String contains = req.getParameter("contains");
+            if (contains != null) {
+                return taskService.getAllTaskOfUserContainsTitle(authorization, contains);
+            }
+
+            String startTime = req.getParameter("start");
+            String endTime = req.getParameter("end");
+            if (startTime != null && endTime != null) {
+                return taskService.getAllTaskOfUserInRangeTime(authorization, Long.parseLong(startTime), Long.parseLong(endTime));
+            }
+
+            String countType = req.getParameter("count");
+            if (countType.equals("status")) {
+                String countStatus = req.getParameter("value");
+                return taskService.getTaskCountByStatusOfUser(authorization, Boolean.parseBoolean(countStatus));
+            } else if (countType.equals("category")) {
                 return taskService.getCategoryCountsOfUser(authorization);
-            default:
-                return null;
+            }
+            throw new NullPointerException(); // Bad request
+        }
+
+        String[] paths = pathInfo.split("/");
+        if (paths.length != 2) {
+            throw new NullPointerException(); // Bad request
+        }
+        int taskId = Integer.parseInt(paths[1]);
+        List<TaskDto> singleTask = new ArrayList<>();
+        TaskDto taskDto = taskService.getTask(authorization, taskId);
+        singleTask.add(taskDto);
+        return singleTask;
+    }
+
+    private Integer getIdFromPath(String pathInfo) {
+        if(pathInfo == null || pathInfo.equals("/")){
+            return null;
+        }
+        String[] splits = pathInfo.split("/");
+        if(splits.length != 2) {
+            return null;
+        }
+        try {
+            return Integer.parseInt(splits[1]);
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 
@@ -82,8 +107,8 @@ public class TaskAPI extends HttpServlet {
         try {
             String authorization = Helper.requireNotNull(req.getHeader("Authorization"));
             Gson gson = new Gson();
-            TaskClient taskClient = gson.fromJson(req.getReader(), TaskClient.class);
-            taskService.insertTask(authorization, taskClient);
+            TaskDto taskDto = gson.fromJson(req.getReader(), TaskDto.class);
+            taskService.insertTask(authorization, taskDto);
             resp.setStatus(Status.OK);
         } catch (UnauthorizedException e) {
             e.printStackTrace();
@@ -96,9 +121,11 @@ public class TaskAPI extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         try {
             String authorization = Helper.requireNotNull(req.getHeader("Authorization"));
+            int taskId = getIdFromPath(req.getPathInfo());
             Gson gson = new Gson();
-            TaskClient taskClient = gson.fromJson(req.getReader(), TaskClient.class);
-            taskService.updateTask(authorization, taskClient);
+            TaskDto taskDto = gson.fromJson(req.getReader(), TaskDto.class);
+            taskDto.setId(taskId);
+            taskService.updateTask(authorization, taskDto);
             resp.setStatus(Status.OK);
         } catch (UnauthorizedException e) {
             e.printStackTrace();
@@ -114,9 +141,10 @@ public class TaskAPI extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         try {
             String authorization = Helper.requireNotNull(req.getHeader("Authorization"));
-            Gson gson = new Gson();
-            TaskClient taskClient = gson.fromJson(req.getReader(), TaskClient.class);
-            taskService.deleteTask(authorization, taskClient);
+            int taskId = getIdFromPath(req.getPathInfo());
+            TaskDto taskDto = new TaskDto();
+            taskDto.setId(taskId);
+            taskService.deleteTask(authorization, taskDto);
             resp.setStatus(Status.OK);
         } catch (UnauthorizedException e) {
             e.printStackTrace();

@@ -6,7 +6,7 @@ import me.lordierclaw.todoserver.database.utils.mapper.impl.CategoryCountMapper;
 import me.lordierclaw.todoserver.database.utils.mapper.impl.TaskMapper;
 import me.lordierclaw.todoserver.database.utils.query.IQueryExecutorBuilder;
 import me.lordierclaw.todoserver.model.base.Task;
-import me.lordierclaw.todoserver.model.client.CategoryCount;
+import me.lordierclaw.todoserver.model.dto.CategoryCountDto;
 
 import java.sql.Timestamp;
 import java.sql.Types;
@@ -113,7 +113,7 @@ public class TaskDao extends AbstractDao implements ITaskDao {
     }
 
     @Override
-    public List<CategoryCount> getCategoryCountsOfUser(int userId) {
+    public List<CategoryCountDto> getCategoryCountsOfUser(int userId) {
         String sql =
                 "SELECT category_user.name AS category_name, COUNT(task.id) AS task_count " +
                 "FROM" +

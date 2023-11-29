@@ -2,6 +2,8 @@ package me.lordierclaw.todoserver.service.impl;
 
 import me.lordierclaw.todoserver.model.base.User;
 import me.lordierclaw.todoserver.repository.IUserRepository;
+import me.lordierclaw.todoserver.security.IPasswordEncoder;
+import me.lordierclaw.todoserver.security.ITokenProvider;
 import me.lordierclaw.todoserver.service.AuthorizedService;
 import me.lordierclaw.todoserver.service.IUserService;
 import me.lordierclaw.todoserver.service.exception.LoginException;
@@ -12,14 +14,21 @@ import javax.inject.Inject;
 public class UserService extends AuthorizedService implements IUserService {
     @Inject
     private IUserRepository userRepository;
+    @Inject
+    private IPasswordEncoder passwordEncoder;
+    @Inject
+    private ITokenProvider tokenProvider;
 
     @Override
     public String logIn(String email, String password) throws LoginException {
-        User user =  userRepository.findUserByEmailPassword(email, password);
+        User user =  userRepository.findUserByEmail(email);
         if (user == null) {
-            throw new LoginException("Email or password doesn't match with system");
+            throw new LoginException("No user with found with email: " + email);
         }
-        return userManager.setUserSession(user);
+        if (!passwordEncoder.compare(user.getPassword(), password)) {
+            throw new LoginException("Incorrect password");
+        }
+        return tokenProvider.newAccessToken(user.getId());
     }
 
     @Override

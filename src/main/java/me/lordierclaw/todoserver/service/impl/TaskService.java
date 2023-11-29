@@ -1,8 +1,8 @@
 package me.lordierclaw.todoserver.service.impl;
 
 import me.lordierclaw.todoserver.model.base.Task;
-import me.lordierclaw.todoserver.model.client.CategoryCount;
-import me.lordierclaw.todoserver.model.client.TaskClient;
+import me.lordierclaw.todoserver.model.dto.CategoryCountDto;
+import me.lordierclaw.todoserver.model.dto.TaskDto;
 import me.lordierclaw.todoserver.repository.ITaskRepository;
 import me.lordierclaw.todoserver.service.AuthorizedService;
 import me.lordierclaw.todoserver.service.ITaskService;
@@ -18,56 +18,56 @@ public class TaskService extends AuthorizedService implements ITaskService {
     @Inject
     private ITaskRepository taskRepository;
 
-    private List<TaskClient> mapTaskClientList(List<Task> tasks) {
+    private List<TaskDto> mapTaskClientList(List<Task> tasks) {
         if (tasks == null) return null;
-        List<TaskClient> results = new ArrayList<>();
+        List<TaskDto> results = new ArrayList<>();
         for(Task task: tasks) {
-            results.add(TaskClient.fromTask(task));
+            results.add(TaskDto.fromTask(task));
         }
         return results;
     }
 
     @Override
-    public int insertTask(String token, TaskClient taskClient) throws UnauthorizedException {
-        Task task = taskClient.toTask(authorizeUser(token));
+    public int insertTask(String token, TaskDto taskDto) throws UnauthorizedException {
+        Task task = taskDto.toTask(authorizeUser(token));
         return taskRepository.insertTask(task);
     }
 
     @Override
-    public boolean updateTask(String token, TaskClient taskClient) throws UnauthorizedException {
-        Task task = taskClient.toTask(authorizeUser(token));
+    public boolean updateTask(String token, TaskDto taskDto) throws UnauthorizedException {
+        Task task = taskDto.toTask(authorizeUser(token));
         return taskRepository.updateTask(task);
     }
 
     @Override
-    public boolean deleteTask(String token, TaskClient taskClient) throws UnauthorizedException {
-        Task task = taskClient.toTask(authorizeUser(token));
+    public boolean deleteTask(String token, TaskDto taskDto) throws UnauthorizedException {
+        Task task = taskDto.toTask(authorizeUser(token));
         return taskRepository.deleteTask(task);
     }
 
     @Override
-    public TaskClient getTask(String token, int id) throws UnauthorizedException {
-        return TaskClient.fromTask(taskRepository.getTask(authorizeUser(token), id));
+    public TaskDto getTask(String token, int id) throws UnauthorizedException {
+        return TaskDto.fromTask(taskRepository.getTask(authorizeUser(token), id));
     }
 
     @Override
-    public List<TaskClient> getAllTaskOfUser(String token) throws UnauthorizedException {
+    public List<TaskDto> getAllTaskOfUser(String token) throws UnauthorizedException {
         return mapTaskClientList(taskRepository.getAllTaskOfUser(authorizeUser(token)));
     }
 
     @Override
-    public List<TaskClient> getAllTaskInCategory(String token, int categoryId) throws UnauthorizedException {
+    public List<TaskDto> getAllTaskInCategory(String token, int categoryId) throws UnauthorizedException {
         return mapTaskClientList(taskRepository.getAllTaskInCategory(authorizeUser(token), categoryId));
     }
 
     @Override
-    public List<TaskClient> getAllTaskOfUserContainsTitle(String token, String keyword) throws UnauthorizedException {
+    public List<TaskDto> getAllTaskOfUserContainsTitle(String token, String keyword) throws UnauthorizedException {
         int userId = authorizeUser(token);
         return mapTaskClientList(taskRepository.getAllTaskOfUserContainsTitle(userId, keyword));
     }
 
     @Override
-    public List<TaskClient> getAllTaskOfUserInRangeTime(String token, long startTimestamp, long endTimestamp) throws UnauthorizedException {
+    public List<TaskDto> getAllTaskOfUserInRangeTime(String token, long startTimestamp, long endTimestamp) throws UnauthorizedException {
         int userId = authorizeUser(token);
         Timestamp startTime = new Timestamp(startTimestamp);
         Timestamp endTime = new Timestamp(endTimestamp);
@@ -75,13 +75,13 @@ public class TaskService extends AuthorizedService implements ITaskService {
     }
 
     @Override
-    public List<TaskClient> getTaskCountByStatusOfUser(String token, boolean status) throws UnauthorizedException {
+    public List<TaskDto> getTaskCountByStatusOfUser(String token, boolean status) throws UnauthorizedException {
         int userId = authorizeUser(token);
         return mapTaskClientList(taskRepository.getTaskCountByStatusOfUser(userId, status));
     }
 
     @Override
-    public List<CategoryCount> getCategoryCountsOfUser(String token) throws UnauthorizedException {
+    public List<CategoryCountDto> getCategoryCountsOfUser(String token) throws UnauthorizedException {
         return taskRepository.getCategoryCountsOfUser(authorizeUser(token));
     }
 }

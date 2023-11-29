@@ -1,6 +1,6 @@
 package me.lordierclaw.todoserver.database.dao;
 
-import me.lordierclaw.todoserver.model.client.CategoryCount;
+import me.lordierclaw.todoserver.model.dto.CategoryCountDto;
 import me.lordierclaw.todoserver.model.base.Task;
 
 import java.sql.Timestamp;
@@ -16,5 +16,5 @@ public interface ITaskDao {
     List<Task> getAllTaskOfUserContainsTitle(int userId, String keyword);
     List<Task> getAllTaskOfUserInRangeTime(int userId, Timestamp startTime, Timestamp endTime);
     List<Task> getTaskCountByStatusOfUser(int userId, boolean status);
-    List<CategoryCount> getCategoryCountsOfUser(int userId);
+    List<CategoryCountDto> getCategoryCountsOfUser(int userId);
 }

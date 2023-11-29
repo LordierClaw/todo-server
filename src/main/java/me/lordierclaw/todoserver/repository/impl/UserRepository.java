@@ -6,8 +6,8 @@ import me.lordierclaw.todoserver.repository.IUserRepository;
 
 public class UserRepository extends AbstractRepository implements IUserRepository {
     @Override
-    public User findUserByEmailPassword(String email, String password) {
-        return databaseInstance.getUserDao().findUserByEmailPassword(email, password);
+    public User findUserByEmail(String email) {
+        return databaseInstance.getUserDao().findUserByEmail(email);
     }
 
     @Override

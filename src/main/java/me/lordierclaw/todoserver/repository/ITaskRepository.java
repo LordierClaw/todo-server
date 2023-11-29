@@ -1,7 +1,7 @@
 package me.lordierclaw.todoserver.repository;
 
-import me.lordierclaw.todoserver.model.client.CategoryCount;
 import me.lordierclaw.todoserver.model.base.Task;
+import me.lordierclaw.todoserver.model.dto.CategoryCountDto;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -16,5 +16,5 @@ public interface ITaskRepository {
     List<Task> getAllTaskOfUserContainsTitle(int userId, String keyword);
     List<Task> getAllTaskOfUserInRangeTime(int userId, Timestamp startTime, Timestamp endTime);
     List<Task> getTaskCountByStatusOfUser(int userId, boolean status);
-    List<CategoryCount> getCategoryCountsOfUser(int userId);
+    List<CategoryCountDto> getCategoryCountsOfUser(int userId);
 }

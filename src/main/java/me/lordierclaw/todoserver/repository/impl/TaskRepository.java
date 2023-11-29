@@ -1,7 +1,7 @@
 package me.lordierclaw.todoserver.repository.impl;
 
 import me.lordierclaw.todoserver.model.base.Task;
-import me.lordierclaw.todoserver.model.client.CategoryCount;
+import me.lordierclaw.todoserver.model.dto.CategoryCountDto;
 import me.lordierclaw.todoserver.repository.AbstractRepository;
 import me.lordierclaw.todoserver.repository.ITaskRepository;
 
@@ -61,7 +61,7 @@ public class TaskRepository extends AbstractRepository implements ITaskRepositor
     }
 
     @Override
-    public List<CategoryCount> getCategoryCountsOfUser(int userId) {
+    public List<CategoryCountDto> getCategoryCountsOfUser(int userId) {
         return databaseInstance.getTaskDao().getCategoryCountsOfUser(userId);
     }
 }
