@@ -5,12 +5,14 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import me.lordierclaw.todoserver.security.TokenProvider;
+import me.lordierclaw.todoserver.utils.ConfigManager;
 
 import java.util.Date;
 
 public class JWTTokenProvider implements TokenProvider {
-    private static final String SECRET = "3a8f7b9cde245a17fcd89a53b6f687c482bc72f4a5d96c816ed2aeccab447d01";
-    private static final long ACCESS_TOKEN_VALIDITY = 3600000; // 1 hour
+    private static final String SECRET = ConfigManager.getInstance().load("security_config").get("JWT_SECRET");
+    private static final long ACCESS_TOKEN_VALIDITY =
+            Long.parseLong(ConfigManager.getInstance().load("security_config").get("ACCESS_TOKEN_VALIDITY"));
     private static final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS256;
 
     @Override

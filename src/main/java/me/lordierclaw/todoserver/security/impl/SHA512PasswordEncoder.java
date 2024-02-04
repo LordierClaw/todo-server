@@ -1,6 +1,7 @@
 package me.lordierclaw.todoserver.security.impl;
 
 import me.lordierclaw.todoserver.security.PasswordEncoder;
+import me.lordierclaw.todoserver.utils.ConfigManager;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -9,7 +10,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class SHA512PasswordEncoder implements PasswordEncoder {
-    private static final byte[] SALT = "SomeConstantSaltValue".getBytes(StandardCharsets.UTF_8);
+    private static final byte[] SALT =
+            ConfigManager.getInstance().load("security_config").get("SHA512_SALT").getBytes(StandardCharsets.UTF_8);
     private static final String ALGORITHM = "SHA-512";
 
     @Override
