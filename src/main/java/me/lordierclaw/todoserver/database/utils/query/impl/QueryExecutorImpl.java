@@ -2,8 +2,8 @@ package me.lordierclaw.todoserver.database.utils.query.impl;
 
 import me.lordierclaw.todoserver.database.connector.DatabaseConnector;
 import me.lordierclaw.todoserver.database.utils.mapper.RowMapper;
-import me.lordierclaw.todoserver.database.utils.query.QueryExecutor;
 import me.lordierclaw.todoserver.database.utils.query.OnUpdateResultListener;
+import me.lordierclaw.todoserver.database.utils.query.QueryExecutor;
 import me.lordierclaw.todoserver.exception.sql.*;
 
 import java.sql.*;

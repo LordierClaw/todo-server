@@ -1,8 +1,8 @@
 package me.lordierclaw.todoserver.database.dao;
 
+import me.lordierclaw.todoserver.database.utils.query.PreparedExecutor;
 import me.lordierclaw.todoserver.database.utils.query.QueryExecutor;
 import me.lordierclaw.todoserver.database.utils.query.QueryExecutorBuilder;
-import me.lordierclaw.todoserver.database.utils.query.PreparedExecutor;
 
 public abstract class AbstractDao {
     protected final QueryExecutorBuilder executorBuilder;
