@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import me.lordierclaw.todoserver.exception.response.ResponseException;
 import me.lordierclaw.todoserver.exception.response.ResponseValue;
-import me.lordierclaw.todoserver.service.IUserService;
+import me.lordierclaw.todoserver.service.UserService;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -18,7 +18,7 @@ import java.io.IOException;
 public class UserLoginAPI extends HttpServlet {
 
     @Inject
-    private IUserService userService;
+    private UserService userService;
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

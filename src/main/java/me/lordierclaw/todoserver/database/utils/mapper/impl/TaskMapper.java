@@ -1,13 +1,13 @@
 package me.lordierclaw.todoserver.database.utils.mapper.impl;
 
-import me.lordierclaw.todoserver.database.utils.mapper.IRowMapper;
+import me.lordierclaw.todoserver.database.utils.mapper.RowMapper;
 import me.lordierclaw.todoserver.exception.sql.SQLMappingException;
 import me.lordierclaw.todoserver.model.base.Task;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class TaskMapper implements IRowMapper<Task> {
+public class TaskMapper implements RowMapper<Task> {
     @Override
     public Task mapRow(ResultSet rs) throws SQLMappingException {
         try {

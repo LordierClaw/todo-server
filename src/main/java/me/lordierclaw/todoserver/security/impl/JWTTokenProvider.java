@@ -4,11 +4,11 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import me.lordierclaw.todoserver.security.ITokenProvider;
+import me.lordierclaw.todoserver.security.TokenProvider;
 
 import java.util.Date;
 
-public class JWTTokenProvider implements ITokenProvider {
+public class JWTTokenProvider implements TokenProvider {
     private static final String SECRET = "3a8f7b9cde245a17fcd89a53b6f687c482bc72f4a5d96c816ed2aeccab447d01";
     private static final long ACCESS_TOKEN_VALIDITY = 3600000; // 1 hour
     private static final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS256;

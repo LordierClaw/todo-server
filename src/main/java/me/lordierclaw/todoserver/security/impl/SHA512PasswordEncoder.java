@@ -1,6 +1,6 @@
 package me.lordierclaw.todoserver.security.impl;
 
-import me.lordierclaw.todoserver.security.IPasswordEncoder;
+import me.lordierclaw.todoserver.security.PasswordEncoder;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -8,7 +8,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class SHA512PasswordEncoder implements IPasswordEncoder {
+public class SHA512PasswordEncoder implements PasswordEncoder {
     private static final byte[] SALT = "SomeConstantSaltValue".getBytes(StandardCharsets.UTF_8);
     private static final String ALGORITHM = "SHA-512";
 

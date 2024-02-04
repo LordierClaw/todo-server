@@ -5,8 +5,8 @@ import com.google.gson.JsonObject;
 import me.lordierclaw.todoserver.exception.response.ResponseException;
 import me.lordierclaw.todoserver.exception.response.ResponseValue;
 import me.lordierclaw.todoserver.model.base.User;
-import me.lordierclaw.todoserver.security.IPasswordEncoder;
-import me.lordierclaw.todoserver.service.IUserService;
+import me.lordierclaw.todoserver.security.PasswordEncoder;
+import me.lordierclaw.todoserver.service.UserService;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -19,9 +19,9 @@ import java.io.IOException;
 @WebServlet(urlPatterns = {"/api/register"})
 public class UserRegisterAPI extends HttpServlet {
     @Inject
-    private IUserService userService;
+    private UserService userService;
     @Inject
-    private IPasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

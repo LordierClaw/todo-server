@@ -1,14 +1,14 @@
 package me.lordierclaw.todoserver.database.utils.query;
 
-import me.lordierclaw.todoserver.database.utils.mapper.IRowMapper;
+import me.lordierclaw.todoserver.database.utils.mapper.RowMapper;
 import me.lordierclaw.todoserver.exception.sql.*;
 
 import java.util.List;
 
 public abstract class PreparedExecutor {
-    protected abstract IQueryExecutor buildExecutor();
+    protected abstract QueryExecutor buildExecutor();
 
-    public <E> List<E> query(String sql, IRowMapper<E> rowMapper, Object... parameters) throws SQLQueryException, SQLTypeException, SQLConnectException, SQLMappingException {
+    public <E> List<E> query(String sql, RowMapper<E> rowMapper, Object... parameters) throws SQLQueryException, SQLTypeException, SQLConnectException, SQLMappingException {
         return buildExecutor().executeQuery(sql, rowMapper, parameters);
     }
 

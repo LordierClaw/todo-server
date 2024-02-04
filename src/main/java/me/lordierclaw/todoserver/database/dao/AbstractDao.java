@@ -1,20 +1,20 @@
 package me.lordierclaw.todoserver.database.dao;
 
-import me.lordierclaw.todoserver.database.utils.query.IQueryExecutor;
-import me.lordierclaw.todoserver.database.utils.query.IQueryExecutorBuilder;
+import me.lordierclaw.todoserver.database.utils.query.QueryExecutor;
+import me.lordierclaw.todoserver.database.utils.query.QueryExecutorBuilder;
 import me.lordierclaw.todoserver.database.utils.query.PreparedExecutor;
 
 public abstract class AbstractDao {
-    protected final IQueryExecutorBuilder executorBuilder;
+    protected final QueryExecutorBuilder executorBuilder;
 
-    public AbstractDao(IQueryExecutorBuilder executorBuilder) {
+    public AbstractDao(QueryExecutorBuilder executorBuilder) {
         this.executorBuilder = executorBuilder;
     }
 
     public PreparedExecutor prepareExecutor() {
         return new PreparedExecutor() {
             @Override
-            protected IQueryExecutor buildExecutor() {
+            protected QueryExecutor buildExecutor() {
                 return executorBuilder.getExecutor();
             }
         };
@@ -23,7 +23,7 @@ public abstract class AbstractDao {
     public PreparedExecutor prepareExecutorWithTypes(int... sqlTypes) {
         return new PreparedExecutor() {
             @Override
-            protected IQueryExecutor buildExecutor() {
+            protected QueryExecutor buildExecutor() {
                 return executorBuilder.getExecutor().setSQLTypes(sqlTypes);
             }
         };

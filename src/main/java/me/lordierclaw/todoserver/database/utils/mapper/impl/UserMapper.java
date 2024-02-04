@@ -1,13 +1,13 @@
 package me.lordierclaw.todoserver.database.utils.mapper.impl;
 
-import me.lordierclaw.todoserver.database.utils.mapper.IRowMapper;
+import me.lordierclaw.todoserver.database.utils.mapper.RowMapper;
 import me.lordierclaw.todoserver.exception.sql.SQLMappingException;
 import me.lordierclaw.todoserver.model.base.User;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class UserMapper implements IRowMapper<User> {
+public class UserMapper implements RowMapper<User> {
     @Override
     public User mapRow(ResultSet rs) throws SQLMappingException {
         try {

@@ -4,14 +4,14 @@ import io.jsonwebtoken.Claims;
 import me.lordierclaw.todoserver.exception.response.ResponseException;
 import me.lordierclaw.todoserver.exception.response.ResponseValue;
 import me.lordierclaw.todoserver.model.base.User;
-import me.lordierclaw.todoserver.security.ITokenProvider;
+import me.lordierclaw.todoserver.security.TokenProvider;
 
 import javax.inject.Inject;
 import java.util.Date;
 
 public class AuthorizedService {
     @Inject
-    protected ITokenProvider tokenProvider;
+    protected TokenProvider tokenProvider;
 
     protected int authorizeUser(String token) throws ResponseException {
         Claims claims = tokenProvider.decode(token);

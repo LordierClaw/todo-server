@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import me.lordierclaw.todoserver.exception.response.ResponseException;
 import me.lordierclaw.todoserver.exception.response.ResponseValue;
 import me.lordierclaw.todoserver.model.dto.TaskDto;
-import me.lordierclaw.todoserver.service.ITaskService;
+import me.lordierclaw.todoserver.service.TaskService;
 import me.lordierclaw.todoserver.utils.Helper;
 
 import javax.inject.Inject;
@@ -20,7 +20,7 @@ import java.util.List;
 @WebServlet(urlPatterns = {"/api/task/*"})
 public class TaskAPI extends HttpServlet {
     @Inject
-    private ITaskService taskService;
+    private TaskService taskService;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

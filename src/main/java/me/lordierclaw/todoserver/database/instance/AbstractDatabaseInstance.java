@@ -3,7 +3,7 @@ package me.lordierclaw.todoserver.database.instance;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public abstract class AbstractDatabaseInstance implements IDatabaseInstance {
+public abstract class AbstractDatabaseInstance implements DatabaseInstance {
     private ExecutorService databaseExecutor;
 
     public void initExecutor(int nThreads) {

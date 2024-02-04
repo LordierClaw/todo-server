@@ -1,14 +1,14 @@
 package me.lordierclaw.todoserver.database.connector.impl;
 
 import io.github.cdimascio.dotenv.Dotenv;
-import me.lordierclaw.todoserver.database.connector.IDatabaseConnector;
+import me.lordierclaw.todoserver.database.connector.DatabaseConnector;
 import me.lordierclaw.todoserver.exception.sql.SQLConnectException;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class MySQLConnector implements IDatabaseConnector {
+public class MySQLConnector implements DatabaseConnector {
     private final String url;
     private final String user;
     private final String password;
