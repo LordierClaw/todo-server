@@ -1,6 +1,7 @@
 package me.lordierclaw.todoserver.database.utils.mapper.impl;
 
 import me.lordierclaw.todoserver.database.utils.mapper.IRowMapper;
+import me.lordierclaw.todoserver.exception.sql.SQLMappingException;
 import me.lordierclaw.todoserver.model.base.User;
 
 import java.sql.ResultSet;
@@ -8,7 +9,7 @@ import java.sql.SQLException;
 
 public class UserMapper implements IRowMapper<User> {
     @Override
-    public User mapRow(ResultSet rs) {
+    public User mapRow(ResultSet rs) throws SQLMappingException {
         try {
             User user = new User();
             user.setId(rs.getInt("id"));
@@ -17,7 +18,7 @@ public class UserMapper implements IRowMapper<User> {
             user.setPassword(rs.getString("password"));
             return user;
         } catch (SQLException e) {
-            return null;
+            throw new SQLMappingException(e);
         }
     }
 }

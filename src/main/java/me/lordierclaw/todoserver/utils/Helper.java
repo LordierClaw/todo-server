@@ -1,12 +1,29 @@
 package me.lordierclaw.todoserver.utils;
 
-public class Helper {
-    private Helper() {}
+import me.lordierclaw.todoserver.exception.response.ResponseException;
+import me.lordierclaw.todoserver.exception.response.ResponseValue;
 
-    // You might wonder wtf is this? Well, I don't like to deal with null, so here it is:
-    // Yes, I will handle all the "null thing" with just a try catch, I know I'm lazy
+import java.util.Objects;
+
+public class Helper {
+
     public static <T> T requireNotNull(T object) {
-        if (object == null) throw new NullPointerException();
-        return object;
+        return Objects.requireNonNull(object);
+    }
+
+    public static <T, Ex extends Throwable> T requireNotNull(T object, Ex nullException) throws Ex {
+        if (object == null) {
+            throw nullException;
+        } else {
+            return object;
+        }
+    }
+
+    public static <T> T requireNotNull(T object, ResponseValue value) throws ResponseException {
+        if (object == null) {
+            throw new ResponseException(value);
+        } else {
+            return object;
+        }
     }
 }

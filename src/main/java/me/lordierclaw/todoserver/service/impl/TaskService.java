@@ -1,12 +1,15 @@
 package me.lordierclaw.todoserver.service.impl;
 
+import me.lordierclaw.todoserver.exception.data.DataCrudException;
+import me.lordierclaw.todoserver.exception.data.DataInvalidateException;
+import me.lordierclaw.todoserver.exception.response.ResponseException;
+import me.lordierclaw.todoserver.exception.response.ResponseValue;
 import me.lordierclaw.todoserver.model.base.Task;
 import me.lordierclaw.todoserver.model.dto.CategoryCountDto;
 import me.lordierclaw.todoserver.model.dto.TaskDto;
 import me.lordierclaw.todoserver.repository.ITaskRepository;
 import me.lordierclaw.todoserver.service.AuthorizedService;
 import me.lordierclaw.todoserver.service.ITaskService;
-import me.lordierclaw.todoserver.service.exception.UnauthorizedException;
 
 import javax.inject.Inject;
 import java.sql.Timestamp;
@@ -18,70 +21,120 @@ public class TaskService extends AuthorizedService implements ITaskService {
     @Inject
     private ITaskRepository taskRepository;
 
-    private List<TaskDto> mapTaskClientList(List<Task> tasks) {
-        if (tasks == null) return null;
+    private List<TaskDto> mapTaskClientList(List<Task> tasks) throws ResponseException {
+        if (tasks == null) throw new ResponseException(ResponseValue.ITEM_NOT_FOUND);
         List<TaskDto> results = new ArrayList<>();
-        for(Task task: tasks) {
+        for (Task task : tasks) {
             results.add(TaskDto.fromTask(task));
         }
         return results;
     }
 
     @Override
-    public int insertTask(String token, TaskDto taskDto) throws UnauthorizedException {
+    public int insertTask(String token, TaskDto taskDto) throws ResponseException {
         Task task = taskDto.toTask(authorizeUser(token));
-        return taskRepository.insertTask(task);
+        try {
+            return taskRepository.insertTask(task);
+        } catch (DataCrudException e) {
+            throw new ResponseException(ResponseValue.UNEXPECTED_ERROR_OCCURRED);
+        } catch (DataInvalidateException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public boolean updateTask(String token, TaskDto taskDto) throws UnauthorizedException {
+    public void updateTask(String token, TaskDto taskDto) throws ResponseException {
         Task task = taskDto.toTask(authorizeUser(token));
-        return taskRepository.updateTask(task);
+        try {
+            taskRepository.updateTask(task);
+        } catch (DataCrudException e) {
+            throw new ResponseException(ResponseValue.UNEXPECTED_ERROR_OCCURRED);
+        } catch (DataInvalidateException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public boolean deleteTask(String token, TaskDto taskDto) throws UnauthorizedException {
+    public void deleteTask(String token, TaskDto taskDto) throws ResponseException {
         Task task = taskDto.toTask(authorizeUser(token));
-        return taskRepository.deleteTask(task);
+        try {
+            taskRepository.deleteTask(task);
+        } catch (DataCrudException e) {
+            throw new ResponseException(ResponseValue.UNEXPECTED_ERROR_OCCURRED);
+        } catch (DataInvalidateException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public TaskDto getTask(String token, int id) throws UnauthorizedException {
-        return TaskDto.fromTask(taskRepository.getTask(authorizeUser(token), id));
+    public TaskDto getTask(String token, int id) throws ResponseException {
+        try {
+            Task task = taskRepository.getTask(authorizeUser(token), id);
+            if (task == null) {
+                throw new ResponseException(ResponseValue.ITEM_NOT_FOUND);
+            }
+            return TaskDto.fromTask(task);
+        } catch (DataCrudException e) {
+            throw new ResponseException(ResponseValue.UNEXPECTED_ERROR_OCCURRED);
+        }
     }
 
     @Override
-    public List<TaskDto> getAllTaskOfUser(String token) throws UnauthorizedException {
-        return mapTaskClientList(taskRepository.getAllTaskOfUser(authorizeUser(token)));
+    public List<TaskDto> getAllTaskOfUser(String token) throws ResponseException {
+        try {
+            return mapTaskClientList(taskRepository.getAllTaskOfUser(authorizeUser(token)));
+        } catch (DataCrudException e) {
+            throw new ResponseException(ResponseValue.UNEXPECTED_ERROR_OCCURRED);
+        }
     }
 
     @Override
-    public List<TaskDto> getAllTaskInCategory(String token, int categoryId) throws UnauthorizedException {
-        return mapTaskClientList(taskRepository.getAllTaskInCategory(authorizeUser(token), categoryId));
+    public List<TaskDto> getAllTaskInCategory(String token, int categoryId) throws ResponseException {
+        try {
+            return mapTaskClientList(taskRepository.getAllTaskInCategory(authorizeUser(token), categoryId));
+        } catch (DataCrudException e) {
+            throw new ResponseException(ResponseValue.UNEXPECTED_ERROR_OCCURRED);
+        }
     }
 
     @Override
-    public List<TaskDto> getAllTaskOfUserContainsTitle(String token, String keyword) throws UnauthorizedException {
+    public List<TaskDto> getAllTaskOfUserContainsTitle(String token, String keyword) throws ResponseException {
         int userId = authorizeUser(token);
-        return mapTaskClientList(taskRepository.getAllTaskOfUserContainsTitle(userId, keyword));
+        try {
+            return mapTaskClientList(taskRepository.getAllTaskOfUserContainsTitle(userId, keyword));
+        } catch (DataCrudException e) {
+            throw new ResponseException(ResponseValue.UNEXPECTED_ERROR_OCCURRED);
+        }
     }
 
     @Override
-    public List<TaskDto> getAllTaskOfUserInRangeTime(String token, long startTimestamp, long endTimestamp) throws UnauthorizedException {
+    public List<TaskDto> getAllTaskOfUserInRangeTime(String token, long startTimestamp, long endTimestamp) throws ResponseException {
         int userId = authorizeUser(token);
         Timestamp startTime = new Timestamp(startTimestamp);
         Timestamp endTime = new Timestamp(endTimestamp);
-        return mapTaskClientList(taskRepository.getAllTaskOfUserInRangeTime(userId, startTime, endTime));
+        try {
+            return mapTaskClientList(taskRepository.getAllTaskOfUserInRangeTime(userId, startTime, endTime));
+        } catch (DataCrudException e) {
+            throw new ResponseException(ResponseValue.UNEXPECTED_ERROR_OCCURRED);
+        }
     }
 
     @Override
-    public List<TaskDto> getTaskCountByStatusOfUser(String token, boolean status) throws UnauthorizedException {
+    public List<TaskDto> getTaskCountByStatusOfUser(String token, boolean status) throws ResponseException {
         int userId = authorizeUser(token);
-        return mapTaskClientList(taskRepository.getTaskCountByStatusOfUser(userId, status));
+        try {
+            return mapTaskClientList(taskRepository.getTaskCountByStatusOfUser(userId, status));
+        } catch (DataCrudException e) {
+            throw new ResponseException(ResponseValue.UNEXPECTED_ERROR_OCCURRED);
+        }
     }
 
     @Override
-    public List<CategoryCountDto> getCategoryCountsOfUser(String token) throws UnauthorizedException {
-        return taskRepository.getCategoryCountsOfUser(authorizeUser(token));
+    public List<CategoryCountDto> getCategoryCountsOfUser(String token) throws ResponseException {
+        try {
+            return taskRepository.getCategoryCountsOfUser(authorizeUser(token));
+        } catch (DataCrudException e) {
+            throw new ResponseException(ResponseValue.UNEXPECTED_ERROR_OCCURRED);
+        }
     }
 }

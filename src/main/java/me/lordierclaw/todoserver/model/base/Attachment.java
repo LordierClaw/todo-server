@@ -1,6 +1,6 @@
 package me.lordierclaw.todoserver.model.base;
 
-public class Attachment extends Identifiable{
+public class Attachment extends Identifiable {
     private String type;
     private String url;
     private Integer taskId;

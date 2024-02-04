@@ -2,6 +2,7 @@ package me.lordierclaw.todoserver.database.connector.impl;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import me.lordierclaw.todoserver.database.connector.IDatabaseConnector;
+import me.lordierclaw.todoserver.exception.sql.SQLConnectException;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -21,12 +22,12 @@ public class MySQLConnector implements IDatabaseConnector {
     }
 
     @Override
-    public Connection newConnection() {
+    public Connection newConnection() throws SQLConnectException {
         try {
             Class.forName("com.mysql.jdbc.Driver");
             return DriverManager.getConnection(this.url, this.user, this.password);
         } catch (ClassNotFoundException | SQLException e) {
-            throw new RuntimeException(e);
+            throw new SQLConnectException(e);
         }
     }
 }

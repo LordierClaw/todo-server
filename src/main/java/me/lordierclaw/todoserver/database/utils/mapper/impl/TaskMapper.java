@@ -1,6 +1,7 @@
 package me.lordierclaw.todoserver.database.utils.mapper.impl;
 
 import me.lordierclaw.todoserver.database.utils.mapper.IRowMapper;
+import me.lordierclaw.todoserver.exception.sql.SQLMappingException;
 import me.lordierclaw.todoserver.model.base.Task;
 
 import java.sql.ResultSet;
@@ -8,7 +9,7 @@ import java.sql.SQLException;
 
 public class TaskMapper implements IRowMapper<Task> {
     @Override
-    public Task mapRow(ResultSet rs) {
+    public Task mapRow(ResultSet rs) throws SQLMappingException {
         try {
             Task task = new Task();
             task.setId(rs.getInt("id"));
@@ -22,7 +23,7 @@ public class TaskMapper implements IRowMapper<Task> {
             task.setNotes(rs.getString("notes"));
             return task;
         } catch (SQLException e) {
-            return null;
+            throw new SQLMappingException(e);
         }
     }
 }

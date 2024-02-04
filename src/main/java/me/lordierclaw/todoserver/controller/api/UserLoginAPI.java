@@ -2,9 +2,9 @@ package me.lordierclaw.todoserver.controller.api;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import me.lordierclaw.todoserver.exception.response.ResponseException;
+import me.lordierclaw.todoserver.exception.response.ResponseValue;
 import me.lordierclaw.todoserver.service.IUserService;
-import me.lordierclaw.todoserver.service.exception.LoginException;
-import me.lordierclaw.todoserver.utils.Status;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -14,8 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebServlet(urlPatterns = {"/login"})
-public class LoginAPI extends HttpServlet {
+@WebServlet(urlPatterns = {"/api/login"})
+public class UserLoginAPI extends HttpServlet {
 
     @Inject
     private IUserService userService;
@@ -28,15 +28,10 @@ public class LoginAPI extends HttpServlet {
         String email = body.get("email").getAsString();
         String password = body.get("password").getAsString();
         if (email == null || password == null) {
-            resp.setStatus(Status.BAD_REQUEST);
-            return;
+            throw new ResponseException(ResponseValue.INVALID_FIELDS);
         }
-        try {
-            String token = userService.logIn(email, password);
-            resp.setStatus(Status.ACCEPTED);
-            resp.getOutputStream().print(token);
-        } catch (LoginException e) {
-            resp.setStatus(Status.NOT_ACCEPTED);
-        }
+        String token = userService.logIn(email, password);
+        resp.setStatus(ResponseValue.SUCCESS.getHttpStatus());
+        resp.getOutputStream().print(token);
     }
 }

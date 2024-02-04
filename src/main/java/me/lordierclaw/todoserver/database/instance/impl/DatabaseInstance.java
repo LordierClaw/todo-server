@@ -11,6 +11,8 @@ import me.lordierclaw.todoserver.database.utils.trigger.impl.TriggerTracker;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Singleton
 public class DatabaseInstance extends AbstractDatabaseInstance {
@@ -30,17 +32,22 @@ public class DatabaseInstance extends AbstractDatabaseInstance {
     }
 
     private void initDaoAndTracker() {
-        IQueryExecutorBuilder executorBuilder = () -> QueryExecutor.connect(dbConnector.newConnection());
-        userDao = new UserDao(executorBuilder);
-        taskDao = new TaskDao(executorBuilder);
-        subtaskDao = new SubtaskDao(executorBuilder);
-        categoryDao = new CategoryDao(executorBuilder);
-        attachmentDao = new AttachmentDao(executorBuilder);
-        String[] trackTables = new String[]{"task", "subtask", "category", "attachment"};
-        triggerTracker = new TriggerTracker(executorBuilder, trackTables);
-        triggerTracker.stopTracking();
-        triggerTracker.createTrackingTable();
-        triggerTracker.startTracking();
+        try {
+            IQueryExecutorBuilder executorBuilder = () -> QueryExecutor.connect(dbConnector);
+            userDao = new UserDao(executorBuilder);
+            taskDao = new TaskDao(executorBuilder);
+            subtaskDao = new SubtaskDao(executorBuilder);
+            categoryDao = new CategoryDao(executorBuilder);
+            attachmentDao = new AttachmentDao(executorBuilder);
+            String[] trackTables = new String[]{"task", "subtask", "category", "attachment"};
+            triggerTracker = new TriggerTracker(executorBuilder, trackTables);
+            triggerTracker.stopTracking();
+            triggerTracker.createTrackingTable();
+            triggerTracker.startTracking();
+        } catch (Exception e) {
+            Logger.getLogger(DatabaseInstance.class.getName()).log(Level.SEVERE,
+                    "Unable to initialize DAO and TriggerTracker", e);
+        }
     }
 
     @Override

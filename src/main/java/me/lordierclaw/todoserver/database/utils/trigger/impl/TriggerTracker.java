@@ -3,13 +3,17 @@ package me.lordierclaw.todoserver.database.utils.trigger.impl;
 import me.lordierclaw.todoserver.database.utils.query.IQueryExecutor;
 import me.lordierclaw.todoserver.database.utils.query.IQueryExecutorBuilder;
 import me.lordierclaw.todoserver.database.utils.trigger.ITriggerTracker;
+import me.lordierclaw.todoserver.exception.sql.SQLConnectException;
+import me.lordierclaw.todoserver.exception.sql.SQLMappingException;
+import me.lordierclaw.todoserver.exception.sql.SQLQueryException;
+import me.lordierclaw.todoserver.exception.sql.SQLTypeException;
 
 import java.sql.SQLException;
 import java.util.*;
 
 public class TriggerTracker implements ITriggerTracker {
 
-    private final static String[] TRIGGERS = new String[]{ "INSERT", "UPDATE", "DELETE" };
+    private final static String[] TRIGGERS = new String[]{"INSERT", "UPDATE", "DELETE"};
     private final static String LOG_TABLE_NAME = "modification_log";
     private final static String TABLE_ID_COLUMN_NAME = "table_id";
     private final static String INVALIDATED_COLUMN_NAME = "invalidated";
@@ -20,18 +24,17 @@ public class TriggerTracker implements ITriggerTracker {
 
     public TriggerTracker(IQueryExecutorBuilder executorBuilder, String... tables) {
         this.queryExecutor = executorBuilder.getExecutor();
-        this.queryExecutor.setAutoCloseConnection(false);
         tableMap = new HashMap<>();
         int count = 0;
-        for(String table: tables) {
+        for (String table : tables) {
             tableMap.put(count++, table);
         }
     }
 
     @Override
-    public void createTrackingTable() {
+    public void createTrackingTable() throws SQLQueryException, SQLTypeException, SQLConnectException {
         String sql = String.format("CREATE TABLE IF NOT EXISTS %s" +
-                "(%s INTEGER PRIMARY KEY, %s INTEGER NOT NULL DEFAULT 0)",
+                        "(%s INTEGER PRIMARY KEY, %s INTEGER NOT NULL DEFAULT 0)",
                 LOG_TABLE_NAME, TABLE_ID_COLUMN_NAME, INVALIDATED_COLUMN_NAME);
         queryExecutor.execute(sql);
     }
@@ -41,19 +44,19 @@ public class TriggerTracker implements ITriggerTracker {
     }
 
     @Override
-    public void startTracking() {
+    public void startTracking() throws SQLQueryException, SQLTypeException, SQLConnectException {
         String insertDefaultSql = String.format("INSERT INTO %s (%s, %s) VALUES (?, 0)",
                 LOG_TABLE_NAME, TABLE_ID_COLUMN_NAME, INVALIDATED_COLUMN_NAME);
         String createTriggerSql =
                 "CREATE TRIGGER %s " +
-                "AFTER %s ON %s " +
-                "FOR EACH ROW " +
-                "BEGIN " +
-                "    UPDATE %s SET %s = 1 WHERE %s = %d AND %s = 0; " +
-                "END;";
-        for(Map.Entry<Integer, String> entry: tableMap.entrySet()) {
+                        "AFTER %s ON %s " +
+                        "FOR EACH ROW " +
+                        "BEGIN " +
+                        "    UPDATE %s SET %s = 1 WHERE %s = %d AND %s = 0; " +
+                        "END;";
+        for (Map.Entry<Integer, String> entry : tableMap.entrySet()) {
             queryExecutor.execute(insertDefaultSql, entry.getKey());
-            for(String trigger: TRIGGERS) {
+            for (String trigger : TRIGGERS) {
                 queryExecutor.execute(String.format(createTriggerSql,
                         getTriggerName(entry.getValue(), trigger),
                         trigger,
@@ -69,11 +72,11 @@ public class TriggerTracker implements ITriggerTracker {
     }
 
     @Override
-    public void stopTracking() {
+    public void stopTracking() throws SQLQueryException, SQLTypeException, SQLConnectException {
         String dropTableSql = "DROP TABLE IF EXISTS " + LOG_TABLE_NAME;
         String dropTriggerSql = "DROP TRIGGER IF EXISTS %s";
-        for(Map.Entry<Integer, String> entry: tableMap.entrySet()) {
-            for(String trigger: TRIGGERS) {
+        for (Map.Entry<Integer, String> entry : tableMap.entrySet()) {
+            for (String trigger : TRIGGERS) {
                 queryExecutor.execute(String.format(dropTriggerSql, getTriggerName(entry.getValue(), trigger)));
             }
         }
@@ -81,7 +84,7 @@ public class TriggerTracker implements ITriggerTracker {
     }
 
     @Override
-    public Set<String> getInvalidatedTables() {
+    public Set<String> getInvalidatedTables() throws SQLQueryException, SQLTypeException, SQLConnectException, SQLMappingException {
         String selectInvalidatedSql = String.format("SELECT * FROM %s WHERE %s = 1",
                 LOG_TABLE_NAME, INVALIDATED_COLUMN_NAME);
         String resetInvalidatedStatus = String.format("UPDATE %s SET %s = 0 WHERE %s = 1",
@@ -90,7 +93,7 @@ public class TriggerTracker implements ITriggerTracker {
             try {
                 return tableMap.get(rs.getInt(TABLE_ID_COLUMN_NAME));
             } catch (SQLException e) {
-                return null;
+                throw new SQLMappingException(e);
             }
         });
         queryExecutor.execute(resetInvalidatedStatus);

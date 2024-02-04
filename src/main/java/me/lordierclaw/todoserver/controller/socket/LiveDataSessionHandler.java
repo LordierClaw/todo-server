@@ -47,7 +47,7 @@ public class LiveDataSessionHandler {
     }
 
     public void invalidate(Collection<String> invalidatedTables) {
-        for (Map.Entry<Session, Set<String>> entry: sessionTableMap.entrySet()) {
+        for (Map.Entry<Session, Set<String>> entry : sessionTableMap.entrySet()) {
             Session session = entry.getKey();
             Set<String> tables = entry.getValue();
             List<String> invalidated = checkInvalidatedTables(tables, invalidatedTables);
@@ -65,7 +65,7 @@ public class LiveDataSessionHandler {
 
     private List<String> checkInvalidatedTables(Collection<String> tables, Collection<String> invalidatedTables) {
         List<String> result = new ArrayList<>();
-        for(String invalidatedTable: invalidatedTables) {
+        for (String invalidatedTable : invalidatedTables) {
             if (tables.contains(invalidatedTable)) {
                 result.add(invalidatedTable);
             }

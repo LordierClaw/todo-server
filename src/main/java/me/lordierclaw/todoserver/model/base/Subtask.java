@@ -1,6 +1,6 @@
 package me.lordierclaw.todoserver.model.base;
 
-public class Subtask extends Identifiable{
+public class Subtask extends Identifiable {
     private boolean status;
     private String name;
     private Integer taskId;

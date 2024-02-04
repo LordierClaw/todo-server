@@ -1,161 +1,111 @@
 package me.lordierclaw.todoserver.database.utils.query.impl;
 
+import me.lordierclaw.todoserver.database.connector.IDatabaseConnector;
+import me.lordierclaw.todoserver.database.utils.mapper.IRowMapper;
 import me.lordierclaw.todoserver.database.utils.query.IQueryExecutor;
 import me.lordierclaw.todoserver.database.utils.query.OnUpdateResultListener;
-import me.lordierclaw.todoserver.database.utils.mapper.IRowMapper;
+import me.lordierclaw.todoserver.exception.sql.*;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Objects;
 
 public class QueryExecutor implements IQueryExecutor {
 
-    private final Connection connection;
+    private final IDatabaseConnector dbConnector;
 
-    @Override
-    public boolean isAutoCloseConnection() {
-        return isAutoCloseConnection;
+    private QueryExecutor(IDatabaseConnector dbConnector) {
+        this.dbConnector = Objects.requireNonNull(dbConnector);
     }
 
-    @Override
-    public boolean close() {
-        if (connection != null) {
-            try {
-                connection.close();
-                return true;
-            } catch (SQLException e) {
-                return false;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public void setAutoCloseConnection(boolean autoCloseConnection) {
-        isAutoCloseConnection = autoCloseConnection;
-    }
-
-    private void autoCloseConnection() throws SQLException {
-        if (isAutoCloseConnection)
-            connection.close();
-    }
-
-    private boolean isAutoCloseConnection = true;
-
-    private QueryExecutor(Connection connection) {
-        this.connection = connection;
-    }
-
-    public static QueryExecutor connect(Connection connection) {
-        return new QueryExecutor(connection);
+    public static QueryExecutor connect(IDatabaseConnector dbConnector) {
+        return new QueryExecutor(dbConnector);
     }
 
     private int[] columnSqlTypes;
 
     @Override
-    public boolean execute(String sql, Object... parameters) {
-        if (connection == null) return false;
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(sql);
-            setParameter(statement, parameters);
-            return statement.execute();
-        } catch (SQLException e) {
-            Logger.getLogger(QueryExecutor.class.getName()).log(Level.SEVERE, e.getMessage());
-            return false;
-        } finally {
-            try {
-                if (statement != null) statement.close();
-                autoCloseConnection();
-            } catch (SQLException ignored) {
+    public void execute(String sql, Object... parameters) throws SQLConnectException, SQLTypeException, SQLQueryException {
+        try (Connection connection = dbConnector.newConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                setParameter(statement, parameters);
+                statement.execute();
+            } catch (SQLException e) {
+                throw new SQLQueryException(e);
             }
+        } catch (SQLException e) {
+            throw new SQLConnectException(e);
         }
     }
 
     @Override
-    public <E> List<E> executeQuery(String sql, IRowMapper<E> rowMapper, Object... parameters) {
-        if (connection == null) return null;
+    public <E> List<E> executeQuery(String sql, IRowMapper<E> rowMapper, Object... parameters) throws SQLConnectException, SQLTypeException, SQLQueryException, SQLMappingException {
         List<E> results = new ArrayList<>();
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        try {
-            statement = connection.prepareStatement(sql);
-            setParameter(statement, parameters);
-            resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                results.add(rowMapper.mapRow(resultSet));
+        try (Connection connection = dbConnector.newConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                setParameter(statement, parameters);
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        results.add(rowMapper.mapRow(resultSet));
+                    }
+                    return results;
+                } catch (SQLException e) {
+                    throw new SQLQueryException(e);
+                }
             }
-            return results;
         } catch (SQLException e) {
-            Logger.getLogger(QueryExecutor.class.getName()).log(Level.SEVERE, e.getMessage());
-            return null;
-        } finally {
-            try {
-                if (resultSet != null) resultSet.close();
-                if (statement != null) statement.close();
-                autoCloseConnection();
-            } catch (SQLException ignored) {
-            }
+            throw new SQLConnectException(e);
         }
     }
 
     @Override
-    public boolean executeUpdate(String sql, Object... parameters) {
-        if (connection == null) return false;
-        PreparedStatement statement = null;
-        try {
+    public void executeUpdate(String sql, Object... parameters) throws SQLConnectException, SQLTypeException, SQLQueryException, SQLRollbackException {
+        try (Connection connection = dbConnector.newConnection()) {
             connection.setAutoCommit(false);
-            statement = connection.prepareStatement(sql);
-            setParameter(statement, parameters);
-            statement.executeUpdate();
-            connection.commit();
-            return true;
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                setParameter(statement, parameters);
+                statement.executeUpdate();
+                connection.commit();
+            } catch (SQLException e) {
+                try {
+                    connection.rollback();
+                    throw new SQLQueryException(e);
+                } catch (SQLException commitException) {
+                    throw new SQLRollbackException(e);
+                }
+            }
         } catch (SQLException e) {
-            try {
-                connection.rollback();
-            } catch (SQLException ignored) {
-            }
-            return false;
-        } finally {
-            try {
-                if (statement != null) statement.close();
-                autoCloseConnection();
-            } catch (SQLException ignored) {
-            }
+            throw new SQLConnectException(e);
         }
     }
 
     @Override
-    public <T> T executeUpdate(String sql, OnUpdateResultListener<T> listener, Object... parameters) {
-        if (connection == null) return null;
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        T result;
-        try {
+    public <T> T executeUpdate(String sql, OnUpdateResultListener<T> listener, Object... parameters) throws SQLConnectException, SQLTypeException, SQLQueryException, SQLRollbackException, SQLMappingException {
+        try (Connection connection = dbConnector.newConnection()) {
             connection.setAutoCommit(false);
-            statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            setParameter(statement, parameters);
-            statement.executeUpdate();
-            resultSet = statement.getGeneratedKeys();
-            result = listener.extractResult(resultSet);
-            connection.commit();
-            return result;
+            try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
+                setParameter(statement, parameters);
+                statement.executeUpdate();
+                ResultSet resultSet = statement.getGeneratedKeys();
+                T result;
+                try {
+                    result = listener.extractResult(resultSet);
+                } catch (SQLException e) {
+                    throw new SQLMappingException(e);
+                }
+                connection.commit();
+                return result;
+            } catch (SQLException e) {
+                try {
+                    connection.rollback();
+                    throw new SQLQueryException(e);
+                } catch (SQLException commitException) {
+                    throw new SQLRollbackException(e);
+                }
+            }
         } catch (SQLException e) {
-            Logger.getLogger(QueryExecutor.class.getName()).log(Level.SEVERE, e.getMessage());
-            try {
-                connection.rollback();
-            } catch (SQLException ignored) {
-            }
-            return null;
-        } finally {
-            try {
-                if (resultSet != null) resultSet.close();
-                if (statement != null) statement.close();
-                autoCloseConnection();
-            } catch (SQLException ignored) {
-            }
+            throw new SQLConnectException(e);
         }
     }
 
@@ -165,28 +115,31 @@ public class QueryExecutor implements IQueryExecutor {
         return this;
     }
 
-    private void setParameter(PreparedStatement statement, Object... parameters) throws SQLException {
-        for (int i = 0; i < parameters.length; i++) {
-            Object parameter = parameters[i];
-            int parameterIndex = i+1;
-            if (parameter == null) {
-                statement.setNull(parameterIndex, columnSqlTypes[i]);
-                continue;
+    private void setParameter(PreparedStatement statement, Object... parameters) throws SQLTypeException {
+        try {
+            for (int i = 0; i < parameters.length; i++) {
+                Object parameter = parameters[i];
+                int parameterIndex = i + 1;
+                if (parameter == null) {
+                    statement.setNull(parameterIndex, columnSqlTypes[i]);
+                    continue;
+                }
+                if (parameter instanceof Integer) {
+                    statement.setInt(parameterIndex, (Integer) parameter);
+                } else if (parameter instanceof Long) {
+                    statement.setLong(parameterIndex, (Long) parameter);
+                } else if (parameter instanceof String) {
+                    statement.setString(parameterIndex, (String) parameter);
+                } else if (parameter instanceof Boolean) {
+                    statement.setBoolean(parameterIndex, (Boolean) parameter);
+                } else if (parameter instanceof Timestamp) {
+                    statement.setTimestamp(parameterIndex, (Timestamp) parameter);
+                } else {
+                    throw new SQLTypeException("Unsupported SQL Parameter: " + parameter.getClass().getName());
+                }
             }
-            if (parameter instanceof Integer) {
-                statement.setInt(parameterIndex, (Integer) parameter);
-            } else if (parameter instanceof Long) {
-                statement.setLong(parameterIndex, (Long) parameter);
-            } else if (parameter instanceof String) {
-                statement.setString(parameterIndex, (String) parameter);
-            } else if (parameter instanceof Boolean) {
-                statement.setBoolean(parameterIndex, (Boolean) parameter);
-            } else if (parameter instanceof Timestamp) {
-                statement.setTimestamp(parameterIndex, (Timestamp) parameter);
-            } else {
-                throw new RuntimeException("Unsupported SQL Parameter: "+ parameter.getClass().getName());
-            }
+        } catch (SQLException e) {
+            throw new SQLTypeException("Unable to set parameter: ", e);
         }
     }
-
 }

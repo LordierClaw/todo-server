@@ -1,11 +1,11 @@
 package me.lordierclaw.todoserver.controller.api;
 
 import com.google.gson.Gson;
+import me.lordierclaw.todoserver.exception.response.ResponseException;
+import me.lordierclaw.todoserver.exception.response.ResponseValue;
 import me.lordierclaw.todoserver.model.dto.TaskDto;
 import me.lordierclaw.todoserver.service.ITaskService;
-import me.lordierclaw.todoserver.service.exception.UnauthorizedException;
 import me.lordierclaw.todoserver.utils.Helper;
-import me.lordierclaw.todoserver.utils.Status;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@WebServlet(urlPatterns = {"/task/*"})
+@WebServlet(urlPatterns = {"/api/task/*"})
 public class TaskAPI extends HttpServlet {
     @Inject
     private ITaskService taskService;
@@ -26,23 +26,18 @@ public class TaskAPI extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         try {
-            String authorization = Helper.requireNotNull(req.getHeader("Authorization"));
+            String authorization = Helper.requireNotNull(req.getHeader("Authorization"), ResponseValue.MISSING_CLIENT_ID_OR_SECRET);
             Gson gson = new Gson();
-            List<?> contents = Helper.requireNotNull(handleGetContent(authorization, req));
+            List<?> contents = handleGetContent(authorization, req);
             String result = gson.toJson(contents);
-            resp.setStatus(Status.OK);
+            resp.setStatus(ResponseValue.SUCCESS.getHttpStatus());
             resp.getOutputStream().print(result);
-        } catch (UnauthorizedException e) {
-            e.printStackTrace();
-            resp.setStatus(Status.UNAUTHORIZED);
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            resp.setStatus(Status.BAD_REQUEST);
+        } catch (NumberFormatException e) {
+            throw new ResponseException(ResponseValue.FIELD_VALIDATION_ERROR);
         }
     }
 
-    // This function might throw NullPointerException if it can't find the correct key, request
-    private List<?> handleGetContent(String authorization, HttpServletRequest req) throws UnauthorizedException, NullPointerException {
+    private List<?> handleGetContent(String authorization, HttpServletRequest req) throws ResponseException {
         String pathInfo = req.getPathInfo();
         if (pathInfo == null || pathInfo.equals("/")) {
             if (!req.getParameterNames().hasMoreElements()) {
@@ -72,12 +67,12 @@ public class TaskAPI extends HttpServlet {
             } else if (countType.equals("category")) {
                 return taskService.getCategoryCountsOfUser(authorization);
             }
-            throw new NullPointerException(); // Bad request
+            throw new ResponseException(ResponseValue.INVALID_OR_MISSING_REQUEST_PARAMS);
         }
 
         String[] paths = pathInfo.split("/");
         if (paths.length != 2) {
-            throw new NullPointerException(); // Bad request
+            throw new ResponseException(ResponseValue.INVALID_OR_MISSING_REQUEST_PARAMS);
         }
         int taskId = Integer.parseInt(paths[1]);
         List<TaskDto> singleTask = new ArrayList<>();
@@ -87,52 +82,39 @@ public class TaskAPI extends HttpServlet {
     }
 
     private Integer getIdFromPath(String pathInfo) {
-        if(pathInfo == null || pathInfo.equals("/")){
+        if (pathInfo == null || pathInfo.equals("/")) {
             return null;
         }
         String[] splits = pathInfo.split("/");
-        if(splits.length != 2) {
+        if (splits.length != 2) {
             return null;
         }
-        try {
-            return Integer.parseInt(splits[1]);
-        } catch (NumberFormatException e) {
-            return null;
-        }
+        return Integer.parseInt(splits[1]);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
-        try {
-            String authorization = Helper.requireNotNull(req.getHeader("Authorization"));
-            Gson gson = new Gson();
-            TaskDto taskDto = gson.fromJson(req.getReader(), TaskDto.class);
-            taskService.insertTask(authorization, taskDto);
-            resp.setStatus(Status.OK);
-        } catch (UnauthorizedException e) {
-            e.printStackTrace();
-            resp.setStatus(Status.UNAUTHORIZED);
-        }
+        String authorization = Helper.requireNotNull(req.getHeader("Authorization"), ResponseValue.MISSING_CLIENT_ID_OR_SECRET);
+        Gson gson = new Gson();
+        TaskDto taskDto = gson.fromJson(req.getReader(), TaskDto.class);
+        taskService.insertTask(authorization, taskDto);
+        resp.setStatus(ResponseValue.SUCCESS.getHttpStatus());
     }
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         try {
-            String authorization = Helper.requireNotNull(req.getHeader("Authorization"));
+            String authorization = Helper.requireNotNull(req.getHeader("Authorization"), ResponseValue.MISSING_CLIENT_ID_OR_SECRET);
             int taskId = getIdFromPath(req.getPathInfo());
             Gson gson = new Gson();
             TaskDto taskDto = gson.fromJson(req.getReader(), TaskDto.class);
             taskDto.setId(taskId);
             taskService.updateTask(authorization, taskDto);
-            resp.setStatus(Status.OK);
-        } catch (UnauthorizedException e) {
-            e.printStackTrace();
-            resp.setStatus(Status.UNAUTHORIZED);
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            resp.setStatus(Status.BAD_REQUEST);
+            resp.setStatus(ResponseValue.SUCCESS.getHttpStatus());
+        } catch (NumberFormatException e) {
+            throw new ResponseException(ResponseValue.FIELD_VALIDATION_ERROR);
         }
     }
 
@@ -140,18 +122,14 @@ public class TaskAPI extends HttpServlet {
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         try {
-            String authorization = Helper.requireNotNull(req.getHeader("Authorization"));
+            String authorization = Helper.requireNotNull(req.getHeader("Authorization"), ResponseValue.MISSING_CLIENT_ID_OR_SECRET);
             int taskId = getIdFromPath(req.getPathInfo());
             TaskDto taskDto = new TaskDto();
             taskDto.setId(taskId);
             taskService.deleteTask(authorization, taskDto);
-            resp.setStatus(Status.OK);
-        } catch (UnauthorizedException e) {
-            e.printStackTrace();
-            resp.setStatus(Status.UNAUTHORIZED);
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            resp.setStatus(Status.BAD_REQUEST);
+            resp.setStatus(ResponseValue.SUCCESS.getHttpStatus());
+        } catch (NumberFormatException e) {
+            throw new ResponseException(ResponseValue.FIELD_VALIDATION_ERROR);
         }
     }
 }

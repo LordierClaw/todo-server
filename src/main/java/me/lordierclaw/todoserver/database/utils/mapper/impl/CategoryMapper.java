@@ -1,6 +1,7 @@
 package me.lordierclaw.todoserver.database.utils.mapper.impl;
 
 import me.lordierclaw.todoserver.database.utils.mapper.IRowMapper;
+import me.lordierclaw.todoserver.exception.sql.SQLMappingException;
 import me.lordierclaw.todoserver.model.base.Category;
 
 import java.sql.ResultSet;
@@ -8,7 +9,7 @@ import java.sql.SQLException;
 
 public class CategoryMapper implements IRowMapper<Category> {
     @Override
-    public Category mapRow(ResultSet rs) {
+    public Category mapRow(ResultSet rs) throws SQLMappingException {
         try {
             Category category = new Category();
             category.setId(rs.getInt("id"));
@@ -16,7 +17,7 @@ public class CategoryMapper implements IRowMapper<Category> {
             category.setUserId(rs.getInt("user_id"));
             return category;
         } catch (SQLException e) {
-            return null;
+            throw new SQLMappingException(e);
         }
     }
 }

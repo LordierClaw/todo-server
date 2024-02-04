@@ -2,7 +2,7 @@ package me.lordierclaw.todoserver.model.base;
 
 import java.sql.Timestamp;
 
-public class Task extends Identifiable{
+public class Task extends Identifiable {
     private boolean status;
     private String name;
     private Integer userId;

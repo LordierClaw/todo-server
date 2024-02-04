@@ -1,6 +1,6 @@
 package me.lordierclaw.todoserver.model.base;
 
-public class Category extends Identifiable{
+public class Category extends Identifiable {
     private String name;
     private Integer userId;
 

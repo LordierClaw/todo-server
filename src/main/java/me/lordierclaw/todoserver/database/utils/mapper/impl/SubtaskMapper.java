@@ -1,6 +1,7 @@
 package me.lordierclaw.todoserver.database.utils.mapper.impl;
 
 import me.lordierclaw.todoserver.database.utils.mapper.IRowMapper;
+import me.lordierclaw.todoserver.exception.sql.SQLMappingException;
 import me.lordierclaw.todoserver.model.base.Subtask;
 
 import java.sql.ResultSet;
@@ -8,7 +9,7 @@ import java.sql.SQLException;
 
 public class SubtaskMapper implements IRowMapper<Subtask> {
     @Override
-    public Subtask mapRow(ResultSet rs) {
+    public Subtask mapRow(ResultSet rs) throws SQLMappingException {
         try {
             Subtask subtask = new Subtask();
             subtask.setId(rs.getInt("id"));
@@ -17,7 +18,7 @@ public class SubtaskMapper implements IRowMapper<Subtask> {
             subtask.setTaskId(rs.getInt("task_id"));
             return subtask;
         } catch (SQLException e) {
-            return null;
+            throw new SQLMappingException(e);
         }
     }
 }
