@@ -30,9 +30,9 @@ public enum ResponseValue {
     //500x Internal server error
     UNEXPECTED_ERROR_OCCURRED(500, 5000, "lỗi hệ thống");
 
-    private int httpStatus;
-    private String message;
-    private int specialCode;
+    private final int httpStatus;
+    private final String message;
+    private final int specialCode;
 
     ResponseValue(int httpStatus, int specialCode, String message) {
         this.httpStatus = httpStatus;

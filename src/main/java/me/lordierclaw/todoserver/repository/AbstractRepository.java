@@ -11,12 +11,11 @@ import me.lordierclaw.todoserver.exception.sql.SQLTypeException;
 import javax.inject.Inject;
 import java.util.Set;
 
-public class AbstractRepository {
-
-    @Inject
-    protected AbstractDatabaseInstance databaseInstance;
+public abstract class AbstractRepository {
 
     private final LiveDataSessionHandler liveDataSessionHandler = LiveDataSessionHandler.getInstance();
+    @Inject
+    protected AbstractDatabaseInstance databaseInstance;
 
     protected void invalidate() throws DataInvalidateException {
         try {

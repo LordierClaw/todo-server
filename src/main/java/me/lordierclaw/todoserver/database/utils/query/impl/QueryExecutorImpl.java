@@ -14,6 +14,7 @@ import java.util.Objects;
 public class QueryExecutorImpl implements QueryExecutor {
 
     private final DatabaseConnector dbConnector;
+    private int[] columnSqlTypes;
 
     private QueryExecutorImpl(DatabaseConnector dbConnector) {
         this.dbConnector = Objects.requireNonNull(dbConnector);
@@ -22,8 +23,6 @@ public class QueryExecutorImpl implements QueryExecutor {
     public static QueryExecutorImpl connect(DatabaseConnector dbConnector) {
         return new QueryExecutorImpl(dbConnector);
     }
-
-    private int[] columnSqlTypes;
 
     @Override
     public void execute(String sql, Object... parameters) throws SQLConnectException, SQLTypeException, SQLQueryException {
@@ -84,7 +83,7 @@ public class QueryExecutorImpl implements QueryExecutor {
     public <T> T executeUpdate(String sql, OnUpdateResultListener<T> listener, Object... parameters) throws SQLConnectException, SQLTypeException, SQLQueryException, SQLRollbackException, SQLMappingException {
         try (Connection connection = dbConnector.newConnection()) {
             connection.setAutoCommit(false);
-            try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
+            try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 setParameter(statement, parameters);
                 statement.executeUpdate();
                 ResultSet resultSet = statement.getGeneratedKeys();

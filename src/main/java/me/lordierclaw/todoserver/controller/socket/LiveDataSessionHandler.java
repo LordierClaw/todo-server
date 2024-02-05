@@ -13,17 +13,16 @@ public class LiveDataSessionHandler {
     // Note: I can't annotate this class with @Singleton and casually @Inject it into [LiveDataWebSocket]
     // Time wasted on this: 4 hours
     private static LiveDataSessionHandler instance = null;
+    private final Map<Session, Set<String>> sessionTableMap;
+
+    LiveDataSessionHandler() {
+        sessionTableMap = new HashMap<>();
+    }
 
     public static LiveDataSessionHandler getInstance() {
         if (instance == null)
             instance = new LiveDataSessionHandler();
         return instance;
-    }
-
-    private final Map<Session, Set<String>> sessionTableMap;
-
-    LiveDataSessionHandler() {
-        sessionTableMap = new HashMap<>();
     }
 
     public void addSession(Session session) {
