@@ -20,15 +20,15 @@ public class SingleValueMapper<T> implements RowMapper<T> {
     public T mapRow(ResultSet rs) throws SQLMappingException {
         try {
             if (typeClass == String.class) {
-                return (T) rs.getString(0);
+                return (T) rs.getString(1);
             } else if (typeClass == Integer.class) {
-                return (T) Integer.valueOf(rs.getInt(0));
+                return (T) Integer.valueOf(rs.getInt(1));
             } else if (typeClass == Long.class) {
-                return (T) Long.valueOf(rs.getLong(0));
+                return (T) Long.valueOf(rs.getLong(1));
             } else if (typeClass == Boolean.class) {
-                return (T) Boolean.valueOf(rs.getBoolean(0));
+                return (T) Boolean.valueOf(rs.getBoolean(1));
             } else if (typeClass == Timestamp.class) {
-                return (T) rs.getTimestamp(0);
+                return (T) rs.getTimestamp(1);
             } else {
                 throw new SQLMappingException("Unsupported mapping type");
             }

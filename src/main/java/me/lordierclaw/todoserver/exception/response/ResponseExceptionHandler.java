@@ -28,6 +28,5 @@ public class ResponseExceptionHandler extends HttpServlet {
         ResponseException exception = (ResponseException) req.getAttribute("javax.servlet.error.exception");
         PrintWriter out = resp.getWriter();
         out.write(exception.getMessage());
-        resp.setStatus(exception.getValue().getHttpStatus());
     }
 }
