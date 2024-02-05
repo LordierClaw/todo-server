@@ -7,6 +7,8 @@ import me.lordierclaw.todoserver.model.base.Attachment;
 import java.util.List;
 
 public interface AttachmentRepository {
+    boolean isAttachmentBelongToUser(int userId, int taskId, int id) throws DataCrudException;
+
     int insertAttachment(Attachment attachment) throws DataCrudException, DataInvalidateException;
 
     void updateAttachment(Attachment attachment) throws DataCrudException, DataInvalidateException;

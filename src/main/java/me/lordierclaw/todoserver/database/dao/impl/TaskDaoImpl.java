@@ -3,6 +3,7 @@ package me.lordierclaw.todoserver.database.dao.impl;
 import me.lordierclaw.todoserver.database.dao.AbstractDao;
 import me.lordierclaw.todoserver.database.dao.TaskDao;
 import me.lordierclaw.todoserver.database.utils.mapper.impl.CategoryCountMapper;
+import me.lordierclaw.todoserver.database.utils.mapper.impl.SingleValueMapper;
 import me.lordierclaw.todoserver.database.utils.mapper.impl.TaskMapper;
 import me.lordierclaw.todoserver.database.utils.query.QueryExecutorBuilder;
 import me.lordierclaw.todoserver.exception.sql.*;
@@ -16,6 +17,13 @@ import java.util.List;
 public class TaskDaoImpl extends AbstractDao implements TaskDao {
     public TaskDaoImpl(QueryExecutorBuilder executorBuilder) {
         super(executorBuilder);
+    }
+
+    @Override
+    public boolean isTaskBelongToUser(int userId, int id) throws SQLQueryException, SQLTypeException, SQLConnectException, SQLMappingException {
+        String sql = "SELECT COUNT(*) FROM task WHERE id = ? AND user_id = ?";
+        List<Integer> list = prepareExecutor().query(sql, new SingleValueMapper<>(Integer.class), userId, id);
+        return list != null && !list.isEmpty() && list.get(0) != 0;
     }
 
     @Override

@@ -13,6 +13,15 @@ import java.util.logging.Logger;
 
 public class SubtaskRepositoryImpl extends AbstractRepository implements SubtaskRepository {
     @Override
+    public boolean isSubtaskBelongToUser(int userId, int taskId, int id) throws DataCrudException {
+        try {
+            return databaseInstance.getSubtaskDao().isSubtaskBelongToUser(userId, taskId, id);
+        } catch (SQLMappingException | SQLQueryException | SQLTypeException | SQLConnectException e) {
+            throw new DataCrudException(e);
+        }
+    }
+
+    @Override
     public int insertSubtask(Subtask subtask) throws DataCrudException, DataInvalidateException {
         try {
             int result = databaseInstance.getSubtaskDao().insertSubtask(subtask);

@@ -21,7 +21,7 @@ public class TaskServiceImpl extends AuthorizedService implements TaskService {
     @Inject
     private TaskRepository taskRepository;
 
-    private List<TaskDto> mapTaskClientList(List<Task> tasks) throws ResponseException {
+    private List<TaskDto> mapDtoList(List<Task> tasks) throws ResponseException {
         if (tasks == null) throw new ResponseException(ResponseValue.ITEM_NOT_FOUND);
         List<TaskDto> results = new ArrayList<>();
         for (Task task : tasks) {
@@ -82,7 +82,7 @@ public class TaskServiceImpl extends AuthorizedService implements TaskService {
     @Override
     public List<TaskDto> getAllTaskOfUser(String token) throws ResponseException {
         try {
-            return mapTaskClientList(taskRepository.getAllTaskOfUser(authorizeUser(token)));
+            return mapDtoList(taskRepository.getAllTaskOfUser(authorizeUser(token)));
         } catch (DataCrudException e) {
             throw new ResponseException(ResponseValue.UNEXPECTED_ERROR_OCCURRED);
         }
@@ -91,7 +91,7 @@ public class TaskServiceImpl extends AuthorizedService implements TaskService {
     @Override
     public List<TaskDto> getAllTaskInCategory(String token, int categoryId) throws ResponseException {
         try {
-            return mapTaskClientList(taskRepository.getAllTaskInCategory(authorizeUser(token), categoryId));
+            return mapDtoList(taskRepository.getAllTaskInCategory(authorizeUser(token), categoryId));
         } catch (DataCrudException e) {
             throw new ResponseException(ResponseValue.UNEXPECTED_ERROR_OCCURRED);
         }
@@ -101,7 +101,7 @@ public class TaskServiceImpl extends AuthorizedService implements TaskService {
     public List<TaskDto> getAllTaskOfUserContainsTitle(String token, String keyword) throws ResponseException {
         int userId = authorizeUser(token);
         try {
-            return mapTaskClientList(taskRepository.getAllTaskOfUserContainsTitle(userId, keyword));
+            return mapDtoList(taskRepository.getAllTaskOfUserContainsTitle(userId, keyword));
         } catch (DataCrudException e) {
             throw new ResponseException(ResponseValue.UNEXPECTED_ERROR_OCCURRED);
         }
@@ -113,7 +113,7 @@ public class TaskServiceImpl extends AuthorizedService implements TaskService {
         Timestamp startTime = new Timestamp(startTimestamp);
         Timestamp endTime = new Timestamp(endTimestamp);
         try {
-            return mapTaskClientList(taskRepository.getAllTaskOfUserInRangeTime(userId, startTime, endTime));
+            return mapDtoList(taskRepository.getAllTaskOfUserInRangeTime(userId, startTime, endTime));
         } catch (DataCrudException e) {
             throw new ResponseException(ResponseValue.UNEXPECTED_ERROR_OCCURRED);
         }
@@ -123,7 +123,7 @@ public class TaskServiceImpl extends AuthorizedService implements TaskService {
     public List<TaskDto> getTaskCountByStatusOfUser(String token, boolean status) throws ResponseException {
         int userId = authorizeUser(token);
         try {
-            return mapTaskClientList(taskRepository.getTaskCountByStatusOfUser(userId, status));
+            return mapDtoList(taskRepository.getTaskCountByStatusOfUser(userId, status));
         } catch (DataCrudException e) {
             throw new ResponseException(ResponseValue.UNEXPECTED_ERROR_OCCURRED);
         }

@@ -8,6 +8,8 @@ import java.sql.Timestamp;
 import java.util.List;
 
 public interface TaskDao {
+    boolean isTaskBelongToUser(int userId, int id) throws SQLQueryException, SQLTypeException, SQLConnectException, SQLMappingException;
+
     int insertTask(Task task) throws SQLRollbackException, SQLQueryException, SQLTypeException, SQLConnectException, SQLMappingException;
 
     void updateTask(Task task) throws SQLRollbackException, SQLQueryException, SQLTypeException, SQLConnectException;

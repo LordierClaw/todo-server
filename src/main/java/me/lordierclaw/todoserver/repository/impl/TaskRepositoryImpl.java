@@ -15,6 +15,15 @@ import java.util.logging.Logger;
 
 public class TaskRepositoryImpl extends AbstractRepository implements TaskRepository {
     @Override
+    public boolean isTaskBelongToUser(int userId, int id) throws DataCrudException {
+        try {
+            return databaseInstance.getTaskDao().isTaskBelongToUser(userId, id);
+        } catch (SQLMappingException | SQLQueryException | SQLTypeException | SQLConnectException e) {
+            throw new DataCrudException(e);
+        }
+    }
+
+    @Override
     public int insertTask(Task task) throws DataCrudException, DataInvalidateException {
         try {
             int result = databaseInstance.getTaskDao().insertTask(task);

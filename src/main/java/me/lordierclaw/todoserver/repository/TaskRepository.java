@@ -9,6 +9,8 @@ import java.sql.Timestamp;
 import java.util.List;
 
 public interface TaskRepository {
+    boolean isTaskBelongToUser(int userId, int id) throws DataCrudException;
+
     int insertTask(Task task) throws DataCrudException, DataInvalidateException;
 
     void updateTask(Task task) throws DataCrudException, DataInvalidateException;

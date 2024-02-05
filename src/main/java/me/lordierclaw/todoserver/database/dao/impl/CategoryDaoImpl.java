@@ -3,6 +3,7 @@ package me.lordierclaw.todoserver.database.dao.impl;
 import me.lordierclaw.todoserver.database.dao.AbstractDao;
 import me.lordierclaw.todoserver.database.dao.CategoryDao;
 import me.lordierclaw.todoserver.database.utils.mapper.impl.CategoryMapper;
+import me.lordierclaw.todoserver.database.utils.mapper.impl.SingleValueMapper;
 import me.lordierclaw.todoserver.database.utils.query.QueryExecutorBuilder;
 import me.lordierclaw.todoserver.exception.sql.*;
 import me.lordierclaw.todoserver.model.base.Category;
@@ -12,6 +13,13 @@ import java.util.List;
 public class CategoryDaoImpl extends AbstractDao implements CategoryDao {
     public CategoryDaoImpl(QueryExecutorBuilder executorBuilder) {
         super(executorBuilder);
+    }
+
+    @Override
+    public boolean isCategoryBelongToUser(int userId, int id) throws SQLQueryException, SQLTypeException, SQLConnectException, SQLMappingException {
+        String sql = "SELECT COUNT(*) FROM category WHERE id = ? AND user_id = ?";
+        List<Integer> list = prepareExecutor().query(sql, new SingleValueMapper<>(Integer.class), id, userId);
+        return list != null && !list.isEmpty() && list.get(0) != 0;
     }
 
     @Override

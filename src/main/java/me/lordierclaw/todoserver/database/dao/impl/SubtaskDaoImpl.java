@@ -2,6 +2,7 @@ package me.lordierclaw.todoserver.database.dao.impl;
 
 import me.lordierclaw.todoserver.database.dao.AbstractDao;
 import me.lordierclaw.todoserver.database.dao.SubtaskDao;
+import me.lordierclaw.todoserver.database.utils.mapper.impl.SingleValueMapper;
 import me.lordierclaw.todoserver.database.utils.mapper.impl.SubtaskMapper;
 import me.lordierclaw.todoserver.database.utils.query.QueryExecutorBuilder;
 import me.lordierclaw.todoserver.exception.sql.*;
@@ -12,6 +13,13 @@ import java.util.List;
 public class SubtaskDaoImpl extends AbstractDao implements SubtaskDao {
     public SubtaskDaoImpl(QueryExecutorBuilder executorBuilder) {
         super(executorBuilder);
+    }
+
+    @Override
+    public boolean isSubtaskBelongToUser(int userId, int taskId, int id) throws SQLQueryException, SQLTypeException, SQLConnectException, SQLMappingException {
+        String sql = "SELECT COUNT(*) FROM subtask WHERE id = ? AND task_id IN (SELECT id FROM task WHERE id = ? AND user_id = ?)";
+        List<Integer> list = prepareExecutor().query(sql, new SingleValueMapper<>(Integer.class), id, taskId, userId);
+        return list != null && !list.isEmpty() && list.get(0) != 0;
     }
 
     @Override

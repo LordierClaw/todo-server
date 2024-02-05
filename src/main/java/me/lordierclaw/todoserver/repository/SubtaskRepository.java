@@ -7,6 +7,8 @@ import me.lordierclaw.todoserver.model.base.Subtask;
 import java.util.List;
 
 public interface SubtaskRepository {
+    boolean isSubtaskBelongToUser(int userId, int taskId, int id) throws DataCrudException;
+
     int insertSubtask(Subtask subtask) throws DataCrudException, DataInvalidateException;
 
     void updateSubtask(Subtask subtask) throws DataCrudException, DataInvalidateException;

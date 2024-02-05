@@ -1,6 +1,5 @@
 package me.lordierclaw.todoserver.repository.impl;
 
-import me.lordierclaw.todoserver.database.instance.AbstractDatabaseInstance;
 import me.lordierclaw.todoserver.exception.data.DataCrudException;
 import me.lordierclaw.todoserver.exception.data.DataInvalidateException;
 import me.lordierclaw.todoserver.exception.sql.*;
@@ -8,14 +7,19 @@ import me.lordierclaw.todoserver.model.base.Category;
 import me.lordierclaw.todoserver.repository.AbstractRepository;
 import me.lordierclaw.todoserver.repository.CategoryRepository;
 
-import javax.inject.Inject;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class CategoryRepositoryImpl extends AbstractRepository implements CategoryRepository {
-    @Inject
-    private AbstractDatabaseInstance databaseInstance;
+    @Override
+    public boolean isCategoryBelongToUser(int userId, int id) throws DataCrudException {
+        try {
+            return databaseInstance.getCategoryDao().isCategoryBelongToUser(userId, id);
+        } catch (SQLMappingException | SQLQueryException | SQLTypeException | SQLConnectException e) {
+            throw new DataCrudException(e);
+        }
+    }
 
     @Override
     public int insertCategory(Category category) throws DataCrudException, DataInvalidateException {

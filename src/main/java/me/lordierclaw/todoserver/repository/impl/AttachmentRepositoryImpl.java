@@ -13,6 +13,15 @@ import java.util.logging.Logger;
 
 public class AttachmentRepositoryImpl extends AbstractRepository implements AttachmentRepository {
     @Override
+    public boolean isAttachmentBelongToUser(int userId, int taskId, int id) throws DataCrudException {
+        try {
+            return databaseInstance.getAttachmentDao().isAttachmentBelongToUser(userId, taskId, id);
+        } catch (SQLMappingException | SQLQueryException | SQLTypeException | SQLConnectException e) {
+            throw new DataCrudException(e);
+        }
+    }
+
+    @Override
     public int insertAttachment(Attachment attachment) throws DataCrudException, DataInvalidateException {
         try {
             int result = databaseInstance.getAttachmentDao().insertAttachment(attachment);
