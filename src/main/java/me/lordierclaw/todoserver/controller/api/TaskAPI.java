@@ -5,12 +5,10 @@ import me.lordierclaw.todoserver.exception.response.ResponseException;
 import me.lordierclaw.todoserver.exception.response.ResponseValue;
 import me.lordierclaw.todoserver.model.dto.TaskDto;
 import me.lordierclaw.todoserver.service.TaskService;
-import me.lordierclaw.todoserver.utils.Helper;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -18,15 +16,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet(urlPatterns = {"/api/task/*"})
-public class TaskAPI extends HttpServlet {
+public class TaskAPI extends BaseCrudAPI {
     @Inject
     private TaskService taskService;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setCharacterEncoding("UTF-8");
+        defaultSetup(req, resp);
         try {
-            String authorization = Helper.requireNotNull(req.getHeader("Authorization"), ResponseValue.MISSING_CLIENT_ID_OR_SECRET);
+            String authorization = getAuthorization(req);
             Gson gson = new Gson();
             List<?> contents = handleGetContent(authorization, req);
             String result = gson.toJson(contents);
@@ -81,21 +79,10 @@ public class TaskAPI extends HttpServlet {
         return singleTask;
     }
 
-    private Integer getIdFromPath(String pathInfo) {
-        if (pathInfo == null || pathInfo.equals("/")) {
-            return null;
-        }
-        String[] splits = pathInfo.split("/");
-        if (splits.length != 2) {
-            return null;
-        }
-        return Integer.parseInt(splits[1]);
-    }
-
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
-        String authorization = Helper.requireNotNull(req.getHeader("Authorization"), ResponseValue.MISSING_CLIENT_ID_OR_SECRET);
+        String authorization = getAuthorization(req);
         Gson gson = new Gson();
         TaskDto taskDto = gson.fromJson(req.getReader(), TaskDto.class);
         taskService.insertTask(authorization, taskDto);
@@ -106,7 +93,7 @@ public class TaskAPI extends HttpServlet {
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         try {
-            String authorization = Helper.requireNotNull(req.getHeader("Authorization"), ResponseValue.MISSING_CLIENT_ID_OR_SECRET);
+            String authorization = getAuthorization(req);
             int taskId = getIdFromPath(req.getPathInfo());
             Gson gson = new Gson();
             TaskDto taskDto = gson.fromJson(req.getReader(), TaskDto.class);
@@ -122,7 +109,7 @@ public class TaskAPI extends HttpServlet {
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         try {
-            String authorization = Helper.requireNotNull(req.getHeader("Authorization"), ResponseValue.MISSING_CLIENT_ID_OR_SECRET);
+            String authorization = getAuthorization(req);
             int taskId = getIdFromPath(req.getPathInfo());
             TaskDto taskDto = new TaskDto();
             taskDto.setId(taskId);
