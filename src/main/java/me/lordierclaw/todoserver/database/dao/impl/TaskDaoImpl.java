@@ -22,7 +22,7 @@ public class TaskDaoImpl extends AbstractDao implements TaskDao {
     @Override
     public boolean isTaskBelongToUser(int userId, int id) throws SQLQueryException, SQLTypeException, SQLConnectException, SQLMappingException {
         String sql = "SELECT COUNT(*) FROM task WHERE id = ? AND user_id = ?";
-        List<Integer> list = prepareExecutor().query(sql, new SingleValueMapper<>(Integer.class), userId, id);
+        List<Integer> list = prepareExecutor().query(sql, new SingleValueMapper<>(Integer.class), id, userId);
         return list != null && !list.isEmpty() && list.get(0) != 0;
     }
 
